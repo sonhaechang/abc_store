@@ -3,11 +3,11 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from accounts.enum import GenderEnum
+from accounts.validators import validate_phone_length
 
 # Create your models here.
 
@@ -66,7 +66,7 @@ class User(AbstractUser):
 	phone = models.CharField(
 		blank=True, 
 		max_length=11, 
-		validators=[RegexValidator(r'^010[1-9]\d{7}$')],
+		validators=[validate_phone_length],
 		verbose_name=_('휴대폰'),
 		help_text=_('- 를 제외한 번호만 입력하세요.'),
 	)
@@ -163,3 +163,9 @@ class User(AbstractUser):
 		verbose_name=_('수정일'),
 		help_text=_('사용자 정보 수정일입니다.')
 	)
+
+
+	class Meta:
+		db_table = 'users_tb'
+		verbose_name = _('사용자')
+		verbose_name_plural = _('사용자')

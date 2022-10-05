@@ -2,8 +2,10 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from core.models import TimeStampedModel
 
-class UserSession(models.Model):
+
+class UserSession(TimeStampedModel):
 	''' 사용자 세션 모델 '''
 
 	user = models.ForeignKey(
@@ -19,12 +21,8 @@ class UserSession(models.Model):
 		verbose_name=_('세션 키')
 	)
 
-	created_at = models.DateTimeField(
-		auto_now_add=True,
-		verbose_name=_('생성일')
-	)
-	
-	updated_at = models.DateTimeField(
-		auto_now=True,
-		verbose_name=_('수정일')
-	)
+
+	class Meta:
+		db_table = 'user_session_tb'
+		verbose_name = _('사용자 세션')
+		verbose_name_plural = _('사용자 세션')
