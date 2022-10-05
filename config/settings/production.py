@@ -16,6 +16,22 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Database
+# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+
+# pymysql.install_as_MySQLdb()
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': get_secret('DB_NAME'),
+#         'USER': get_secret('DB_USER'),
+#         'PASSWORD': get_secret('DB_PASSWORD'),
+#         # 'HOST': 'localhost',
+#         'HOST': get_secret('DB_HOST'),
+#         'PORT': get_secret('DB_PORT'),
+#     }
+# }
+
 # Django Logging
 LOG_FILE = '/var/log/django/django.log'
 LOGGING = {
