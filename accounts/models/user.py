@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from accounts.enum import GenderEnum
+from accounts.enums import GenderEnum
 from accounts.validators import validate_phone_length
 
 # Create your models here.
