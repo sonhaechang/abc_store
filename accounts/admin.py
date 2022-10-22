@@ -1,5 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db.models import Q
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
@@ -79,3 +82,23 @@ class UserAdmin(BaseUserAdmin):
 		'birthdate', 'gender', 'is_staff', 'is_sign_out']
 	list_filter = ['is_staff', 'is_superuser', 'is_active', 'is_sign_out', UserDateJoinedFilter]
 	inlines = [ShippingAddressInline]
+
+	def get_search_results(self, request, queryset, search_term):
+		''' 
+			get_search_results override 
+			get_search_results는 admin에서 search_fields 검색 기능 
+			fullname으로 이름 검색 가능하게 필터링
+		'''
+
+		queryset, may_have_duplicates = super().get_search_results(
+			request, queryset, search_term,
+		)
+
+		# 이름 검색시 icontains로 성과 이름 합쳐서 fullname을 filtering
+		queryset |= self.model.objects.annotate(full_name=Concat('last_name', V(''), 'first_name')).filter(   
+			Q(full_name__icontains=search_term) | 
+			Q(first_name__icontains=search_term) | 
+			Q(last_name__icontains=search_term)
+		)
+
+		return queryset, may_have_duplicates
