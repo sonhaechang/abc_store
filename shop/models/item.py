@@ -87,7 +87,7 @@ class Item(HistoryModel):
 	)
 
 	best_item = models.BooleanField(
-		default=True, 
+		default=False, 
 		db_index=True,
 		verbose_name=_('베스트 아이템')
 	)

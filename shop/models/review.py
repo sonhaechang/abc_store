@@ -18,6 +18,7 @@ def review_image_upload_to(instance, filename):
 class Review(HistoryModel):
 	user = models.ForeignKey(
 		settings.AUTH_USER_MODEL, 
+		related_name='%(class)s_user', 
 		on_delete=models.CASCADE,
 		verbose_name=_('작성자')
 	)
@@ -29,7 +30,9 @@ class Review(HistoryModel):
 		verbose_name=_('상품')
 	)
 
-	review = models.TextField()
+	review = models.TextField(
+		verbose_name=_('리뷰')
+	)
 
 	rating = models.IntegerField(
 		validators=[MinValueValidator(1), MaxValueValidator(5)], 
