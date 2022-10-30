@@ -12,8 +12,8 @@ def main(request):
     # main_img_halal = MainImages.objects.first()
     # main_img_alcohol = MainImages.objects.last()
 
-	return render(request, 'shop/container/main', {
-		'product': best_item,
+	return render(request, 'core/container/main.html', {
+		'item': best_item,
         # 'carousel_list': carousel_list,
         # 'main_img_halal': main_img_halal,
         # 'main_img_alcohol': main_img_alcohol,
