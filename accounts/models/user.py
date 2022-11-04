@@ -9,8 +9,10 @@ from django.utils.translation import gettext_lazy as _
 from accounts.enums import GenderEnum
 from accounts.validators import validate_phone_length
 
-# Create your models here.
+from core.managers import CustomUserManager
 
+
+# Create your models here.
 def profile_upload_to(instance, filename):
 	ymd_path = timezone.now().strftime('%Y%m%d')
 	_uuid = instance.uuid
@@ -163,6 +165,8 @@ class User(AbstractUser):
 		verbose_name=_('수정일'),
 		help_text=_('사용자 정보 수정일입니다.')
 	)
+
+	objects = CustomUserManager()
 
 
 	class Meta:

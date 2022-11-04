@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from core.managers import CustomModelManager
+
 # Create your models here.
 
 class TimeStampedModel(models.Model):
@@ -17,6 +19,8 @@ class TimeStampedModel(models.Model):
 		verbose_name=_('수정일'),
 		help_text=_('데이터가 수정된 사용자입니다.'),
 	)
+
+	objects = CustomModelManager()
 
 	class Meta:
 		abstract = True

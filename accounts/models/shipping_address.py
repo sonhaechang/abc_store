@@ -4,8 +4,11 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.validators import validate_phone_length
 
+from core.models import HistoryModel
 
-class ShippingAddress(models.Model):
+
+# Create your models here.
+class ShippingAddress(HistoryModel):
 	user = models.ForeignKey(
 		settings.AUTH_USER_MODEL, 
 		on_delete=models.CASCADE,
