@@ -60,3 +60,23 @@ class CategoryListView(PaginationsMixins, ListView):
 		context['item_quantity'] = len(self.get_queryset())
 
 		return context
+
+
+def item_detail(request, category_slug, sub_category_slug, item_slug):
+	item = get_object_or_404(
+		Item.objects.prefetch_related('review_item', 'itemimage_item'), slug=item_slug)
+
+	reviews = item.review_item.filter(
+		parent__isnull=True).prefetch_related('ReviewImag_review').select_related('user')
+
+	# TODO: sklearn을 이용한 recommendation system model을 학습을 시켜서 추천하는 것으로 변경 필요
+	related_items = Item.objects.filter(
+		category=item.category).select_related('category').prefetch_related('photo_set')
+
+	context = {
+		'item': item,
+		'reviews': reviews,
+		'related_items': related_items
+	}
+
+	return render(request, 'shop/container/item_detail.html', context)

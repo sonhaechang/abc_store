@@ -103,8 +103,9 @@ class Item(HistoryModel):
 
 	def get_absolute_url(self):
 		return reverse(
-			'shop:product_detail', args=[self.category.category.slug, self.category.slug, self.slug
-		])
+			'shop:item_detail', 
+			args=[self.category.category.slug, self.category.slug, self.slug]
+		)
 
 
 class ItemImage(HistoryModel):

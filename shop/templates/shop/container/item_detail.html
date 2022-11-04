@@ -1,0 +1,13 @@
+{% extends 'shop/container/layout.html' %}
+{% load static %}
+
+{% block content %}
+	<p>상품명: {{ item.name }}</p>
+	{% if item.sale_amount %}
+		<p>할인 금액: {{ item.sale_amount }}</p>
+		<p>할인률: {{ item.sale_percent }}%</p>
+	{% else %}
+		<p>금액: {{ item.amount }}}</p>
+	{% endif %}
+	<p>상품 설명: {{ item.description }}</p>
+{% endblock %}
