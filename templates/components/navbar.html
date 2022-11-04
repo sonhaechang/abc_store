@@ -1,0 +1,6 @@
+{% for category in navbar_categorys %}
+	<p>{{ category }}</p>
+	{% for menu in category.categorydetail_category.all %}
+		<a href="{% url 'shop:category_list' category.slug menu.slug %}">{{ menu }}</a>
+	{% endfor %}
+{% endfor %}
