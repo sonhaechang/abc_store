@@ -64,6 +64,8 @@ PROJECT_APPS = [
 
 THIRD_PARTY_APPS = [
     'debug_toolbar',
+    'django_extensions',
+    'rest_framework',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
