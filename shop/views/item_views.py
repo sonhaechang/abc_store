@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.views.generic import ListView
 
 from core.mixins import PaginationsMixins
@@ -66,8 +67,7 @@ def item_detail(request, category_slug, sub_category_slug, item_slug):
 	item = get_object_or_404(
 		Item.objects.prefetch_related('review_item', 'itemimage_item'), slug=item_slug)
 
-	reviews = item.review_item.filter(
-		parent__isnull=True).prefetch_related('ReviewImag_review').select_related('user')
+	review_url = reverse('shop:review', kwargs={'item_pk': item.pk})
 
 	# TODO: sklearn을 이용한 recommendation system model을 학습을 시켜서 추천하는 것으로 변경 필요
 	related_items = Item.objects.filter(
@@ -75,7 +75,7 @@ def item_detail(request, category_slug, sub_category_slug, item_slug):
 
 	context = {
 		'item': item,
-		'reviews': reviews,
+		'review_url': review_url,
 		'related_items': related_items
 	}
 

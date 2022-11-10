@@ -1,13 +1,34 @@
 {% extends 'shop/container/layout.html' %}
+{% load humanize %}
 {% load static %}
 
 {% block content %}
 	<p>상품명: {{ item.name }}</p>
 	{% if item.sale_amount %}
-		<p>할인 금액: {{ item.sale_amount }}</p>
-		<p>할인률: {{ item.sale_percent }}%</p>
+		<p style="text-decoration: line-through;">
+			정가: {{ item.amount|intcomma }}원
+		</p>
+		<p>판매가: {{ item.sale_amount|intcomma }}원</p>
 	{% else %}
-		<p>금액: {{ item.amount }}}</p>
+		<p>판매가: {{ item.amount|intcomma }}원</p>
 	{% endif %}
 	<p>상품 설명: {{ item.description }}</p>
+
+	{% if user.is_authenticated %}
+		<form method="post" enctype="multipart/form-data" id="review-form">
+			<input type="number" name="rating" min="1" max="5" required>
+			<textarea name="review" rows="1" required></textarea>
+			<input type="file" name="images" multiple>
+			<input type="submit">
+		</form>
+	{% endif %}
+
+	<div id="review-block"></div>
+	<button id="review-more" class="d-none">more</button>
+{% endblock %}
+
+{% block script %}
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>const reviewURL = '{{ review_url }}';</script>
+	<script src="{% static 'shop/js/review.js' %}"></script>
 {% endblock %}
