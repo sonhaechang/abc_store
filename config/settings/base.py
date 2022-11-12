@@ -156,3 +156,7 @@ MESSAGE_TAGS = {
     messages_constants.DEBUG: 'secondary',
     messages_constants.ERROR: 'danger',
 }
+
+IAMPORT_SHOP_ID = get_secret('IAMPORT_SHOP_ID')
+IAMPORT_API_KEY = get_secret('IAMPORT_API_KEY')
+IAMPORT_API_SECRET = get_secret('IAMPORT_API_SECRET')
