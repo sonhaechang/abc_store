@@ -1,3 +1,4 @@
+import json
 import pytz
 from datetime import datetime
 from django.conf import settings
@@ -14,7 +15,13 @@ from accounts.validators import validate_phone_length
 from core.models import HistoryModel
 
 from order.enums import OrderStautsEnum, PayMethodEnum
-from order.services import change_meta_to_json
+
+
+def change_meta_to_json(meta):
+	replace_meta = meta.replace("None", "null").replace(
+		"False", "false").replace("True", "true").replace("'","\"")
+
+	return json.loads(replace_meta)
 
 
 def named_property(name):
