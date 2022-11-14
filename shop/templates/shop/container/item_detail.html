@@ -3,16 +3,22 @@
 {% load static %}
 
 {% block content %}
-	<p>상품명: {{ item.name }}</p>
-	{% if item.sale_amount %}
-		<p style="text-decoration: line-through;">
-			정가: {{ item.amount|intcomma }}원
-		</p>
-		<p>판매가: {{ item.sale_amount|intcomma }}원</p>
-	{% else %}
-		<p>판매가: {{ item.amount|intcomma }}원</p>
-	{% endif %}
-	<p>상품 설명: {{ item.description }}</p>
+	<div id="item-list">
+		<div class="item" data-item-id="{{ item.id }}">
+			<p>상품명: {{ item.name }}</p>
+			{% if item.sale_amount %}
+				<p style="text-decoration: line-through;">
+					정가: {{ item.amount|intcomma }}원
+				</p>
+				<p>판매가: {{ item.sale_amount|intcomma }}원</p>
+			{% else %}
+				<p>판매가: {{ item.amount|intcomma }}원</p>
+			{% endif %}
+			<p>상품 설명: {{ item.description }}</p>
+		</div>
+	</div>
+
+	<a id="order-new" href="{% url 'order:order_pay' %}">order</a>
 
 	{% if user.is_authenticated %}
 		<form method="post" enctype="multipart/form-data" id="review-form">
@@ -28,7 +34,9 @@
 {% endblock %}
 
 {% block script %}
-	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.10.2/underscore-min.js"></script>
+	<script src="//unpkg.com/axios/dist/axios.min.js"></script>
 	<script>const reviewURL = '{{ review_url }}';</script>
 	<script src="{% static 'shop/js/review.js' %}"></script>
+	<script src="{% static 'order/js/order_new.js' %}"></script>
 {% endblock %}

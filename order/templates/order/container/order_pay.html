@@ -1,0 +1,74 @@
+{% extends 'order/container/layout.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+	<h3>상품 주문</h3>
+	
+	<hr>
+
+	<table class="table">
+		{% for order_item in order_items %}
+		<tbody>
+			<tr>
+			<td>
+				{% for i in order_item.item.itemimage_image.all %}
+					<img src="{{ i.image.url }}" alt="">
+				{% endfor %}
+			</td>
+			<td>
+				<p>{{ order_item.item.name }}</p>
+			</td>
+			{% if order_item.item.sale_amount %}
+				<td>
+					{{ order_item.item.sale_amount|intcomma }} 원
+				</td>
+			{% else %}
+				<td>
+					{{ order_item.item.amount|intcomma }} 원
+				</td>
+			{% endif %}
+			<td>
+				<span>{{ order_item.quantity }} 개</span>
+			</td>
+			<td>
+				<span>{{ order_item.amount|intcomma }}</span> 원
+			</td>
+			</tr>
+		</tbody>
+		{% endfor %}
+	</table>
+
+	<h3>
+		총 결제금액:
+		<span id="total-amount" data-value="{{ form.instance.amount }}">
+			{{ form.instance.amount|intcomma }}
+		</sapn>
+		원
+	</h3>
+
+	<hr>
+
+	<form action="" method="post" id="order-pay">
+		{% csrf_token %}
+		{{ form.buyer_name }}
+		{{ form.buyer_tel }}
+		{{ form.buyer_email }}
+		{{ form.buyer_postcode }}
+		<button type="button" id="search_postcode">우편번호 찾기</button>
+		{{ form.buyer_addr }}
+		{{ form.detail_addr }}
+		{{ form.merchant_uid }}
+		{{ form.imp_uid }}
+		{{ form.pay_method }}
+		<input type="submit" value="order" >
+	</form>
+{% endblock %}
+
+{% block script %}
+	<script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="//cdn.iamport.kr/js/iamport.payment-1.1.5.js"></script>
+	<script src="{% static 'js/post_code.js' %}"></script>
+	<script src="{% static 'order/js/iamport.js' %}" id="imp-js"
+		imp-id="{{ iamport_shop_id }}" order-name="{{ form.instance.name }}"></script>
+{% endblock %}
