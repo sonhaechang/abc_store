@@ -8,7 +8,6 @@ from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from iamport import Iamport
-from uuid import uuid4
 
 from accounts.validators import validate_phone_length
 
@@ -47,8 +46,6 @@ class Order(HistoryModel):
 	)
 
 	merchant_uid = models.UUIDField(
-		default=uuid4,
-		editable=False, 
 		verbose_name=_('주문번호')
 	)
 
@@ -73,12 +70,7 @@ class Order(HistoryModel):
 		verbose_name=_('배송비')
 	)
 
-	first_name = models.CharField(
-		max_length=50, 
-		verbose_name=_('성')
-	)
-
-	last_name = models.CharField(
+	buyer_name = models.CharField(
 		max_length=50, 
 		verbose_name=_('이름')
 	)
@@ -93,7 +85,7 @@ class Order(HistoryModel):
 		verbose_name=_('주소')
 	)
 
-	detail_address = models.CharField(
+	detail_addr = models.CharField(
 		max_length=100, 
 		verbose_name=_('상세주소')
 	)
@@ -104,7 +96,7 @@ class Order(HistoryModel):
 
 	buyer_tel = models.CharField(
 		max_length=11, 
-		validators=[validate_phone_length], 
+		# validators=[validate_phone_length], 
 		verbose_name=_('전화번호')
 	)
 
@@ -145,7 +137,7 @@ class Order(HistoryModel):
 	meta = models.TextField(
 		blank=True, 
 		null=True,
-		verbose_name=_('메다 데이터')
+		verbose_name=_('메타 데이터')
 	)
 
 	meta_json = named_property('메타 데이터')(lambda self: change_meta_to_json(self.meta) if self.meta else '')
@@ -220,7 +212,7 @@ class Order(HistoryModel):
 				{label}
 			</span>'''.format(class_names=cls, text_color=text_color, label=self.get_status_display())
 		if help_text:
-			html += '<br/> <small>{help_text}</small>'.format(help_text=help_text)
+			html += f'<br/> <small>{help_text}</small>'
 		return mark_safe(html)
 
 	@named_property(_('영수증 링크'))
@@ -268,7 +260,6 @@ class Order(HistoryModel):
 			assert str(self.merchant_uid) == val['merchant_uid']
 			self.status = val['status']
 			self.pay_method = val['pay_method']
-			self.receipt_url = val['receipt_url']
 		if commit:
 			self.save()
 
