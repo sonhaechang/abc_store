@@ -49,3 +49,11 @@ def order_pay(request):
 	}
 
 	return render(request, 'order/container/order_pay.html', data)
+
+@login_required
+def order_complete(request, merchant_uid):
+	order = Order.objects.get_or_none(merchant_uid=merchant_uid)
+
+	return render(request, 'order/container/order_complete.html', {
+		'order': order,
+	})

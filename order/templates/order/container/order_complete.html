@@ -1,0 +1,56 @@
+{% extends 'order/container/layout.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+	<div class="col-md-12 mt-5 mb-5">
+		<div class="text-center">
+			<h3>{{ order.buyer_addr }}{{ order.detail_address }}/{{ order.buyer_name }}</h3>
+			<p>(으)로 보내실 주문이 완료 되었습니다.</p>
+		</div>
+
+		<div>
+			<a href="#">나의쇼핑정보</a>
+		</div>
+
+		<br>
+
+		<div>
+			<table class="table table-borderless">
+				<tr>
+				<th rowspan="3">결제정보</th>
+				</tr>
+				<tr>
+					<td>
+						{% if order.is_vbank %}
+							<p>결제수단: 가상계좌</p>
+							<p>계좌번호: {{ order.vbank_num }}</p>
+						{% elif order.is_trans %}
+							<p>결제수단: 실시간 계좌이체</p>
+							<p></p>
+						{% elif order.is_card %}
+							<p>결제수단: 카드</p>
+							<p></p>
+						{% else %}
+							<p>결제수단: 휴대폰 소액결제</p>
+							<p></p>
+						{% endif %}
+					</td>
+				</tr>
+				<tr>
+					<td><h5>결제 금액: {{ order.amount|intcomma }} won</h5></td>
+				</tr>
+				<tr>
+					<th>
+						<p>배송정보</p>
+					</th>
+					<td>
+						<p><small>이름 : {{ order.buyer_name }}</small></p>
+						<p><small>주소 : {{ order.buyer_addr }} {{ order.detail_addr }}</small></p>
+						<p><small>연락처 : {{ order.buyer_tel }}</small></p>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+{% endblock %}
