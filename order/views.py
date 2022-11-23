@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 
 from order.forms import OrderForm
 from order.models import Order, OrderItem
-from order.services import OrderInfo
+from order.services import OrderInfo, OrderItemHandler
 
 from shop.models import Item
 
@@ -32,11 +32,10 @@ def order_pay(request):
 			order.merchant_uid = form.cleaned_data['merchant_uid']
 			order.imp_uid = form.cleaned_data['imp_uid']
 			order.save()
-			
-			for order_item in order_items:
-				order_item.order = order
 
-			OrderItem.objects.bulk_create(order_items)
+			order_item_handler = OrderItemHandler(order)
+			order_item_handler.create_order_items(order_items)
+			order_item_handler.stock_minus_counter()
 
 			return redirect('order:order_complete', str(order.merchant_uid))
 	else:
