@@ -1,13 +1,11 @@
-from urllib.parse import quote
+
 from django.contrib import admin
-from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.utils.safestring import mark_safe
-from order.models import Order, OrderItem
-from django.urls import reverse
-# from django.utils.text import force_text
 from django.utils.translation import gettext_lazy as _
-from django.shortcuts import redirect
+
 # from order.excel_download import excel_download
+from order.models import Order, OrderItem
+from order.services import OrderItemHandler
 
 
 # Register your models here.
@@ -68,6 +66,9 @@ class OrderAdmin(admin.ModelAdmin):
 		if total > 0:
 			for order in queryset:
 				order.cancel()
+				order_item_handler = OrderItemHandler(order)
+				order_item_handler.set_cancel_status()
+				order_item_handler.stock_plus_counter()
 			self.message_user(request, f'주문 {total} 건을 취소했습니다.')
 		else:
 			self.message_user(request, '취소할 주문이 없습니다.')
