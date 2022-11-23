@@ -248,7 +248,8 @@ class Order(HistoryModel):
 			return False
 
 	def update(self, commit=True, meta=None):
-		'결재내역 갱신'
+		''' 결재내역 갱신 '''
+
 		if self.imp_uid:
 			try:
 				self.meta = meta or self.api.find(imp_uid=self.imp_uid)
@@ -258,19 +259,24 @@ class Order(HistoryModel):
 
 			# merchant_uid는 반드시 매칭되어야 합니다.
 			assert str(self.merchant_uid) == val['merchant_uid']
-			self.status = val['status']
+			if self.status != 'exchange_return' and self.status != 'shipping_ready' \
+				and self.status != 'shipping' and self.status != 'shipping_complete':
+				self.status = val['status']
 			self.pay_method = val['pay_method']
 		if commit:
 			self.save()
 
 	def cancel(self, reason=None, amount=None, commit=True):
-		'결제내역 취소'
+		''' 결제내역 취소 '''
+		
 		try:
 			meta = self.api.cancel(reason, imp_uid=self.imp_uid, amount=amount)
 			val = meta or self.api.find(imp_uid=self.imp_uid)
 			assert str(self.merchant_uid) == val['merchant_uid']
 			self.update(commit=commit, meta=meta)
-		except Iamport.ResponseError as e: # 취소시 오류 예외처리(이미 취소된 결제는 에러가 발생함)
+
+		# 취소시 오류 예외처리(이미 취소된 결제는 에러가 발생함)
+		except Iamport.ResponseError as e:
 			self.update(commit=commit)
 		if commit:
 			self.save()
