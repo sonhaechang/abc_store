@@ -1,3 +1,34 @@
-from django.shortcuts import render
+from django.contrib.auth import login as django_login, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+from core.decorators import logout_required
+
+from accounts.forms import LoginForm
 
 # Create your views here.
+@logout_required
+def login(request):
+	''' 로그인 '''
+
+	if request.method == 'POST':
+		# 로그인 성공 후 이동할 URL. 주어지지 않으면 None
+		next_url = request.GET.get('next')
+
+		form = LoginForm(request=request, data=request.POST)
+		if form.is_valid():
+			user = form.get_user()
+
+			# Django의 auth앱에서 제공하는 login함수를 실행해 앞으로의 요청/응답에 세션을 유지한다
+			django_login(request, user)
+
+			# next_url가 존재하면 해당 위치로, 없으면 메인 목록 화면으로 이동
+			return redirect(next_url if next_url else '/')
+
+		# 인증에 실패하면 login_form에 non_field_error를 추가한다
+		form.add_error(None, '아이디 또는 비밀번호가 올바르지 않습니다')
+	else:
+		form = LoginForm()
+		next_url = request.GET.get('next')
+
+	return render(request, 'accounts/container/login.html', {'form': form})
