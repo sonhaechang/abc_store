@@ -11,7 +11,7 @@ from accounts.forms import LoginForm, SignupForm
 
 # Create your views here.
 @logout_required
-def login(request):
+def login(request: HttpRequest) -> HttpResponse:
 	''' 로그인 '''
 
 	if request.method == 'POST':
