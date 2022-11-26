@@ -68,7 +68,7 @@ class User(AbstractUser):
 	phone = models.CharField(
 		blank=True, 
 		max_length=11, 
-		validators=[validate_phone_length],
+		# validators=[validate_phone_length],
 		verbose_name=_('휴대폰'),
 		help_text=_('- 를 제외한 번호만 입력하세요.'),
 	)
