@@ -1,0 +1,10 @@
+{% extends 'accounts/container/layout.html' %}
+{% load static %}
+
+{% block content %}
+	{% include 'accounts/components/accounts_form.html' with submit_value='회원가입' %}
+{% endblock %}
+
+{% block script %}
+	<script src="{% static 'js/post_code.js' %}"></script>
+{% endblock %}

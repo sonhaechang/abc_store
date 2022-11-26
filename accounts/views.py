@@ -1,10 +1,13 @@
+from django.conf import settings
 from django.contrib.auth import login as django_login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 
 from core.decorators import logout_required
 
-from accounts.forms import LoginForm
+from accounts.forms import LoginForm, SignupForm
+
 
 # Create your views here.
 @logout_required
@@ -31,4 +34,22 @@ def login(request):
 		form = LoginForm()
 		next_url = request.GET.get('next')
 
-	return render(request, 'accounts/container/login.html', {'form': form})
+	return render(request, 'accounts/container/login.html', {
+		'form': form
+	})
+
+@logout_required
+def signup(request: HttpRequest) -> HttpResponse:
+	''' 회원가입  '''
+
+	if request.method =='POST':
+		form = SignupForm(request.POST)
+		if form.is_valid():
+			form.save()
+			return redirect(settings.LOGIN_URL)
+	else:
+		form = SignupForm()
+
+	return render(request, 'accounts/container/signup.html', {
+		'form': form,
+	})
