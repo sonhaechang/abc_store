@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 
 from order.forms import OrderForm
@@ -11,7 +12,7 @@ from shop.models import Item
 
 # Create your views here.
 @login_required
-def order_pay(request):
+def order_pay(request: HttpRequest) -> HttpResponse:
 	item_qs = Item.objects.filter(id__in=request.GET.keys())
 	quantity_dict = { int(k): int(v) for k, v in request.GET.dict().items() }
 
@@ -50,7 +51,7 @@ def order_pay(request):
 	return render(request, 'order/container/order_pay.html', data)
 
 @login_required
-def order_complete(request, merchant_uid):
+def order_complete(request: HttpRequest, merchant_uid: str) -> HttpResponse:
 	order = Order.objects.get_or_none(merchant_uid=merchant_uid)
 
 	return render(request, 'order/container/order_complete.html', {

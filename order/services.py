@@ -1,6 +1,7 @@
 from uuid import uuid4
 
-from django.db.models import F
+from django.db.models import Model
+from django.http import HttpRequest
 
 from order.models import Order, OrderItem
 
@@ -8,12 +9,12 @@ from order.models import Order, OrderItem
 class OrderInfo:
 	''' 주문정보 생성하는 class '''
 
-	def __init__(self, request, order_items):
+	def __init__(self, request: HttpRequest, order_items: list[Model]) -> None:
 		self.request = request
 		self.order_items = order_items
 		self.amount = sum(order_item.amount for order_item in order_items)
 
-	def get_instance(self):
+	def get_instance(self) -> Model:
 		''' create order instance '''
 
 		user = self.request.user
@@ -39,11 +40,11 @@ class OrderInfo:
 class OrderItemHandler:
 	''' 주문상품을 handling하는 class '''
 
-	def __init__(self, order):
+	def __init__(self, order: Model) -> None:
 		self.order = order
 		self.order_items = order.orderitem_order.all()
 
-	def create_order_items(self, order_items):
+	def create_order_items(self, order_items: list[Model]) -> None:
 		''' 주문상품을 bulk_create로 생성 '''
 
 		for order_item in order_items:
@@ -52,18 +53,18 @@ class OrderItemHandler:
 
 		OrderItem.objects.bulk_create(order_items)
 
-	def set_paid_status(self):
+	def set_paid_status(self) -> None:
 		''' 주문상품의 status를 order의 status(paid)로 변경 '''
 
 		if not self.order.status == 'exchange_return':
 			self.order_items.update(status=self.order.status)
 
-	def set_cancel_status(self):
+	def set_cancel_status(self) -> None:
 		''' order_item의 status를 주문취소로 변경 '''
 
 		self.order_items.update(status='cancelled')
 
-	def stock_minus_counter(self):
+	def stock_minus_counter(self) -> None:
 		''' item 수량을 order_item 수만큼 차감 '''
 
 		if self.order.status == 'paid':
@@ -75,7 +76,7 @@ class OrderItemHandler:
 					item.is_public = False
 				item.save()
 
-	def stock_plus_counter(self):
+	def stock_plus_counter(self) -> None:
 		''' item 수량을 order_item 수만큼 가감 '''
 
 		for order_item in self.order_items:
