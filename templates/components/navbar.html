@@ -1,4 +1,6 @@
 <nav class="d-flex">
+	<a href="/">Home</a>
+
 	<div class="d-flex">
 		{% for category in navbar_categorys %}
 			<div class="px-3">
@@ -13,6 +15,7 @@
 	<div>
 		{% if user.is_authenticated %}
 			<a href="{% url 'logout' %}?next={{ request.path }}">Logout</a>
+			<a href="{% url 'profile' %}">Profile</a>
 		{% else %}
 			<a href="{% url 'login' %}?next={{ request.path }}">Login</a>
 		{% endif %}
