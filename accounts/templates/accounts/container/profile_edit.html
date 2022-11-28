@@ -1,0 +1,16 @@
+{% extends 'accounts/container/layout.html' %}
+{% load static %}
+
+{% block content %}
+	<h5 class="mb-2">
+		회원님의 회원정보를 
+		<span>확인하고 수정</span>
+		할 수 있습니다.
+	</h5>
+
+	{% include "accounts/components/accounts_form.html" with submit_value='프로필 수정' %}
+{% endblock %}
+
+{% block script %}
+	<script src="{% static 'js/post_code.js' %}"></script>
+{% endblock %}

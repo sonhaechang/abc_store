@@ -1,7 +1,9 @@
+from typing import Union
+
 from django.conf import settings
 from django.contrib.auth import login as django_login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.shortcuts import render, redirect
 
 from core.decorators import logout_required
@@ -10,6 +12,8 @@ from accounts.forms import (
 	LoginForm, SignupForm, 
 	ProfileDetailForm, ProfileEditForm,
 )
+
+RedirectOrResponse = Union[HttpResponseRedirect, HttpResponse]
 
 
 # Create your views here.
@@ -66,3 +70,20 @@ def profile(request: HttpResponse) -> HttpResponse:
 	return render(request, 'accounts/container/profile.html', {
         'form': form,
     })
+
+@login_required
+def profile_edit(request: HttpResponse) -> RedirectOrResponse:
+	''' 프로필 수정 '''
+
+	if request.method == 'POST':
+		form = ProfileEditForm(request.POST, instance=request.user)
+
+		if form.is_valid():
+			form.save()
+			return redirect('/accounts/profile')
+	else:
+		form = ProfileEditForm(instance=request.user)
+
+	return render(request, 'accounts/container/profile_edit.html', {
+		'form': form,
+	})
