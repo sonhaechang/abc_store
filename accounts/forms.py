@@ -74,6 +74,9 @@ class ProfileEditForm(forms.ModelForm):
 				'placeholder':  class_update_fields[field_name],
 			})
 
+		self.fields['address'].widget.attrs['readonly'] = True
+		self.fields['postal_code'].widget.attrs['readonly'] = True
+		self.fields['postal_code'].widget.attrs.update({'id': 'id_postcode'})
 		self.fields['email'].help_text = _('비밀번호 분실시 필요하니 정확히 입력해주세요.')
 		self.fields['gender'] = forms.ChoiceField(
 			widget=forms.RadioSelect({'class': 'd-flex'}),
