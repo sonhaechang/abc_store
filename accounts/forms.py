@@ -49,3 +49,43 @@ class SignupForm(UserCreationForm):
 			label=class_update_fields['gender'], 
 			choices=GenderEnum.choices, 
 			required=True)
+
+
+class ProfileEditForm(forms.ModelForm):
+	''' 프로필 수정할때 사용하는 form '''
+
+	class Meta:
+		model = User
+		fields = ['last_name', 'first_name', 'email', 'phone', 'gender',
+			'postal_code', 'address', 'detail_address']
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		class_update_fields = { 
+			'last_name': _('성'), 'first_name': _('이름'), 'email': _('이메일'), 'phone': _('휴대전화'),
+			'gender': _('성별'), 'postal_code': _('우편번호'), 'address': _('주소'), 'detail_address': _('상세주소')
+		}
+
+		for field_name in list( class_update_fields.keys()):
+			self.fields[field_name].label =  class_update_fields[field_name]
+			self.fields[field_name].widget.attrs.update({
+				'class': 'form-control',
+				'placeholder':  class_update_fields[field_name],
+			})
+
+		self.fields['email'].help_text = _('비밀번호 분실시 필요하니 정확히 입력해주세요.')
+		self.fields['gender'] = forms.ChoiceField(
+			widget=forms.RadioSelect({'class': 'd-flex'}),
+			label=class_update_fields['gender'], 
+			choices=GenderEnum.choices, 
+			required=True)
+
+
+class ProfileDetailForm(ProfileEditForm):
+    ''' 프로필 확인할때 사용하는 form '''
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'disabled': 'True'})

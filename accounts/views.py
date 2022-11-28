@@ -6,7 +6,10 @@ from django.shortcuts import render, redirect
 
 from core.decorators import logout_required
 
-from accounts.forms import LoginForm, SignupForm
+from accounts.forms import (
+	LoginForm, SignupForm, 
+	ProfileDetailForm, ProfileEditForm,
+)
 
 
 # Create your views here.
@@ -53,3 +56,13 @@ def signup(request: HttpRequest) -> HttpResponse:
 	return render(request, 'accounts/container/signup.html', {
 		'form': form,
 	})
+
+@login_required
+def profile(request: HttpResponse) -> HttpResponse:
+	''' 프로필 확인 '''
+
+	form = ProfileDetailForm(instance=request.user)
+
+	return render(request, 'accounts/container/profile.html', {
+        'form': form,
+    })
