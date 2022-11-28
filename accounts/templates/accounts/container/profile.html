@@ -9,6 +9,6 @@
 
 	{% include "accounts/components/accounts_form.html" with class_name='d-none' %}
 	<div>
-		<a href="#">프로필 수정</a>
+		<a href="{% url 'profile_edit' %}">프로필 수정</a>
 	</div>
 {% endblock %}
