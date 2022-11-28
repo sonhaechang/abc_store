@@ -18,7 +18,7 @@ RedirectOrResponse = Union[HttpResponseRedirect, HttpResponse]
 
 # Create your views here.
 @logout_required
-def login(request: HttpRequest) -> HttpResponse:
+def login(request: HttpRequest) -> RedirectOrResponse:
 	''' 로그인 '''
 
 	if request.method == 'POST':
@@ -46,7 +46,7 @@ def login(request: HttpRequest) -> HttpResponse:
 	})
 
 @logout_required
-def signup(request: HttpRequest) -> HttpResponse:
+def signup(request: HttpRequest) -> RedirectOrResponse:
 	''' 회원가입  '''
 
 	if request.method =='POST':
@@ -62,7 +62,7 @@ def signup(request: HttpRequest) -> HttpResponse:
 	})
 
 @login_required
-def profile(request: HttpResponse) -> HttpResponse:
+def profile(request: HttpResponse) -> RedirectOrResponse:
 	''' 프로필 확인 '''
 
 	form = ProfileDetailForm(instance=request.user)
