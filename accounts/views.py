@@ -1,6 +1,7 @@
 from typing import Union
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login as django_login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
@@ -11,6 +12,7 @@ from core.decorators import logout_required
 from accounts.forms import (
 	LoginForm, SignupForm, 
 	ProfileDetailForm, ProfileEditForm,
+	PasswordChangeForm,
 )
 
 RedirectOrResponse = Union[HttpResponseRedirect, HttpResponse]
@@ -87,3 +89,23 @@ def profile_edit(request: HttpResponse) -> RedirectOrResponse:
 	return render(request, 'accounts/container/profile_edit.html', {
 		'form': form,
 	})
+
+@login_required
+def password_change(request: HttpResponse) -> RedirectOrResponse:
+    ''' 비밀번호 변경 '''
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, '비밀번호가 성공적으로 변경되었습니다.')
+            return redirect('profile')
+        else:
+            messages.error(request, '아래 오류를 수정하십시오.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'accounts/container/change_password.html', {
+        'form': form,
+        'app_name': 'change_password'
+    })

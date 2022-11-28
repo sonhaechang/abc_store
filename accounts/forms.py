@@ -1,6 +1,9 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import (
+	AuthenticationForm, UserCreationForm,
+	PasswordChangeForm as AuthPasswordChangeForm,
+)
 from django.utils.translation import gettext_lazy as _
 
 from accounts.enums import GenderEnum
@@ -92,3 +95,22 @@ class ProfileDetailForm(ProfileEditForm):
         super().__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({'disabled': 'True'})
+
+
+class PasswordChangeForm(AuthPasswordChangeForm):
+	''' 비밀번호 변경시 사용하는 form '''
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		class_update_fields = {
+			'old_password': _('이전 비밀번호'), 
+			'new_password1': _('새로운 비밀번호'), 
+			'new_password2': _('새로운 비밀번호 확인')
+		}
+
+		for field_name in list(class_update_fields.keys()):
+			self.fields[field_name].widget.attrs.update({
+				'class': 'form-control',
+				'placeholder': class_update_fields[field_name],
+				'oninput': "checkChangePasswordInput(this)",
+			})
