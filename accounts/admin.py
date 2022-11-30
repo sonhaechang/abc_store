@@ -58,7 +58,7 @@ class UserAdmin(BaseUserAdmin):
 			'terms_of_service_is_agreed', 'terms_of_service_agreed_at',
 			'personal_info_is_agreed', 'personal_info_agreed_at', 'marketing_is_agreed',
 			'marketing_agreed_at', 'password_changed_at', 'password_fail_count', 
-			'is_sign_out', 'sign_out_date', 'updated_at',
+			'is_sign_out', 'sign_out_date', 'updated_at', 'auth_number',
 		)}),
 	)
 
@@ -71,12 +71,12 @@ class UserAdmin(BaseUserAdmin):
 				'terms_of_service_is_agreed', 'terms_of_service_agreed_at',
 				'personal_info_is_agreed', 'personal_info_agreed_at', 'marketing_is_agreed',
 				'marketing_agreed_at', 'password_changed_at', 'password_fail_count', 
-				'is_sign_out', 'sign_out_date', 'updated_at',
+				'is_sign_out', 'sign_out_date', 'updated_at', 'auth_number',
 			),
 		}),
 	)
 
-	readonly_fields = ('uuid', 'last_login', 'last_login_ip', 'sign_up_ip', 'updated_at',)
+	readonly_fields = ('uuid', 'last_login', 'last_login_ip', 'sign_up_ip', 'updated_at', 'auth_number',)
 	list_display = [
 		'username', 'last_name', 'first_name', 'email', 'phone', 
 		'birthdate', 'gender', 'is_staff', 'is_sign_out']
