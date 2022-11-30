@@ -166,6 +166,12 @@ class User(AbstractUser):
 		help_text=_('사용자 정보 수정일입니다.')
 	)
 
+	auth_number = models.PositiveSmallIntegerField(
+        null=True, 
+        blank=True,
+		verbose_name=_('인증번호')
+    )
+
 	objects = CustomUserManager()
 
 
