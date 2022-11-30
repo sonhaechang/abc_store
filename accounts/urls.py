@@ -10,4 +10,9 @@ urlpatterns = [
 	path('profile/', views.profile, name='profile'),
 	path('profile/edit/', views.profile_edit, name='profile_edit'),
 	path('password/change/', views.password_change, name='password_change'),
+	path('password/find/', views.password_find, name='password_find'),
+	path('password/find/email/authenticate/', views.password_find_email_authenticate, 
+		name='password_find_email_authenticate'),
+	path('password/authenticate/confirm/', views.auth_confirm, name='auth_confirm'),
+	path('password/reset/<str:uuid>/', views.password_reset, name='password_reset'),
 ]

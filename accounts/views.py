@@ -1,22 +1,36 @@
+import random
 from typing import Union
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login as django_login, update_session_auth_hash
+from django.contrib.auth import (
+	login as django_login, 
+	logout as django_logout, 
+	update_session_auth_hash,
+	get_user_model,
+)
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
-from django.shortcuts import render, redirect
+from django.http import (
+	HttpResponse, HttpResponseRedirect, HttpRequest, JsonResponse,
+)
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+
+from rest_framework import status
 
 from core.decorators import logout_required
 
 from accounts.forms import (
 	LoginForm, SignupForm, 
 	ProfileDetailForm, ProfileEditForm,
-	PasswordChangeForm,
+	PasswordChangeForm, PasswordResetForm, SetPasswordForm,
 )
 
 RedirectOrResponse = Union[HttpResponseRedirect, HttpResponse]
 
+User = get_user_model()
 
 # Create your views here.
 @logout_required
@@ -105,7 +119,108 @@ def password_change(request: HttpResponse) -> RedirectOrResponse:
             messages.error(request, '아래 오류를 수정하십시오.')
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'accounts/container/change_password.html', {
+    return render(request, 'accounts/container/password_change.html', {
         'form': form,
         'app_name': 'change_password'
     })
+
+@logout_required
+def password_find(request: HttpResponse) -> HttpResponse:
+	''' 비밀번호 찾기 '''
+
+	form = PasswordResetForm()
+	email_auth_url = reverse('password_find_email_authenticate')
+	auth_confirm_url = reverse('auth_confirm')
+
+	return render(request, 'accounts/container/password_find.html', {
+		'form':form,
+		'email_auth_url': email_auth_url,
+		'auth_confirm_url': auth_confirm_url
+	})
+
+@logout_required
+def password_find_email_authenticate(request: HttpResponse) -> JsonResponse:
+	''' 비밀번호 찾기 인증 메일 발송 '''
+
+	if request.method == 'POST':
+		username = request.POST.get('username')
+		target_user = get_object_or_404(User, username=username)
+		
+		#TODO: 1. 메일 발송 비동기로 처리 / 2. 메일을 문자 발송으로 변경
+
+		if target_user:
+			auth_num = int(''.join(map(str, random.sample(range(0, 9), 6))))
+			print(auth_num)
+			target_user.auth_number = auth_num
+			target_user.save()
+
+			send_mail(
+				'비밀번호 찾기 인증메일입니다.',
+				recipient_list=[target_user.email],
+				from_email=settings.EMAIL_HOST_USER,
+				message='',
+				html_message=render_to_string(
+					'accounts/container/password_find_email_authenticate.html', 
+					{
+						'auth_num': auth_num,
+						'site_name': 'Site Name' # 사이트명 수정 하드코딩된거 수정 필요
+					}
+				),
+				fail_silently=True
+			)
+
+			data = {'uuid': str(target_user.uuid)}
+
+			return JsonResponse(data=data, status=status.HTTP_200_OK)
+
+		return JsonResponse(
+			data={'error': '404 (Not Found)'}, status=status.HTTP_404_NOT_FOUND)
+
+	return JsonResponse(
+		data={'error': 'Method Not Allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@logout_required
+def auth_confirm(request: HttpResponse) -> JsonResponse:
+	''' 인증번호 확인 '''
+
+	if request.method == 'POST':
+		user_uuid = request.POST.get('user_uuid')
+		auth_num = request.POST.get('auth_num')
+		print(user_uuid, auth_num)
+		target_user = get_object_or_404(User, uuid=user_uuid, auth_number=auth_num)
+
+		if target_user:
+			target_user.auth_number = None
+			target_user.save()
+
+			data = {'url': reverse('password_reset', args=[target_user.uuid])}
+
+			return JsonResponse(data, status=status.HTTP_200_OK)
+		
+		return JsonResponse(
+			data={'error': '404 (Not Found)'}, status=status.HTTP_404_NOT_FOUND)
+
+	return JsonResponse(
+		data={'error': 'Method Not Allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@logout_required
+def password_reset(request: HttpResponse, uuid: str) -> RedirectOrResponse:
+	''' 비밀번호 재설정 '''
+
+	if request.method == 'POST':
+		current_user = get_object_or_404(User, uuid=uuid)
+		django_login(request, current_user)
+
+		form = SetPasswordForm(request.user, request.POST)
+		
+		if form.is_valid():
+			form.save()
+			messages.success(request, "비밀번호가 변경되었습니다. 변경된 비밀번호로 로그인하세요.")
+			django_logout(request)
+			return redirect(settings.LOGIN_URL)
+	else:
+		form = SetPasswordForm(request.user)
+
+	return render(request, 'accounts/container/password_reset.html', {
+		'form': form
+	})

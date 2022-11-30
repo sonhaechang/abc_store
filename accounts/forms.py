@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
 	AuthenticationForm, UserCreationForm,
 	PasswordChangeForm as AuthPasswordChangeForm,
+	SetPasswordForm as AuthSetPasswordForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -113,4 +114,40 @@ class PasswordChangeForm(AuthPasswordChangeForm):
 				'class': 'form-control',
 				'placeholder': class_update_fields[field_name],
 				'oninput': "checkChangePasswordInput(this)",
+			})
+
+
+class PasswordResetForm(forms.Form):
+	username = forms.CharField(widget=forms.TextInput,)
+	email = forms.EmailField(widget=forms.EmailInput,)
+
+	class Meta:
+		fields = ['username']
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		class_update_fields = {'username': _('아이디')}
+
+		for field_name in list(class_update_fields.keys()):
+			self.fields[field_name].label = class_update_fields[field_name]
+			self.fields[field_name].widget.attrs.update({
+				'class': 'form-control',
+				'placeholder': class_update_fields[field_name]
+			})
+
+
+class SetPasswordForm(AuthSetPasswordForm):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		class_update_fields = {
+			'new_password1': _('새로운 비밀번호'), 
+			'new_password2': _('새로운 비밀번호 확인')
+		}
+
+		for field_name in list(class_update_fields.keys()):
+			self.fields[field_name].label = class_update_fields[field_name]
+			self.fields[field_name].widget.attrs.update({
+				'class': 'form-control',
+				'placeholder': class_update_fields[field_name],
 			})
