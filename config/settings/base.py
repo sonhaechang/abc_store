@@ -57,6 +57,7 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     'accounts.apps.AccountsConfig',
+    'cart.apps.CartConfig',
     'core.apps.CoreConfig',
     'order.apps.OrderConfig',
     'shop.apps.ShopConfig',
