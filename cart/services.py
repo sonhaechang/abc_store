@@ -76,7 +76,7 @@ class SessionCart(object):
         self.session.modified = True
 
     def get_item_total(self) -> int:
-        ''' '''
+        ''' 세션 기반 장바구니에 저장된 모든 상품의 총 금액 반환 '''
 
         return sum(Decimal(item['amount'])*item['quantity'] for item in self.cart.values())
 
