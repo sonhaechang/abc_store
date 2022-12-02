@@ -19,15 +19,13 @@
 			<td>
 				<p>{{ order_item.item.name }}</p>
 			</td>
-			{% if order_item.item.sale_amount %}
-				<td>
+			<td>
+				{% if order_item.item.sale_amount %}
 					{{ order_item.item.sale_amount|intcomma }} 원
-				</td>
-			{% else %}
-				<td>
+				{% else %}
 					{{ order_item.item.amount|intcomma }} 원
-				</td>
-			{% endif %}
+				{% endif %}
+			</td>
 			<td>
 				<span>{{ order_item.quantity }} 개</span>
 			</td>
