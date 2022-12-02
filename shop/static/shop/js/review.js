@@ -1,6 +1,6 @@
 class Review {
 	constructor() {
-		this.url = reviewURL;
+		this.url = document.getElementById('review-js').getAttribute('review-url');
 		this.nextURL = null;
 		this.reviewBlock = document.getElementById('review-block');
 		this.moreBtn = document.getElementById('review-more');

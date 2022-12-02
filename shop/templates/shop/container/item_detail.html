@@ -64,8 +64,7 @@
 {% block script %}
 	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.10.2/underscore-min.js"></script>
 	<script src="//unpkg.com/axios/dist/axios.min.js"></script>
-	<script>const reviewURL = '{{ review_url }}';</script>
-	<script src="{% static 'shop/js/review.js' %}"></script>
+	<script src="{% static 'shop/js/review.js' %}" id="review-js" review-url="{{ review_url }}"></script>
 	<script src="{% static 'order/js/order_new.js' %}"></script>
 	<script src="{% static 'order/js/quantity_select.js' %}"></script>
 	<script>
