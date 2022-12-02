@@ -18,6 +18,34 @@
 		</div>
 	</div>
 
+	<div class="quantity-block">
+		<p id="remaining-quantity" class="d-none">{{ item.stock }}</p>
+		<div class="col-5 text-left pr-0">수량 선택</div>
+		<div>
+			<button class="factor-btn" data-factor="-1" 
+				value="{% if item.sale_amount %}{{ item.sale_amount }}{% else %}{{ item.amount }}{% endif %}">-</button>
+				<span class="quantity">1</span>
+			<button class="factor-btn" data-factor="1" 
+				value="{% if item.sale_amount %}{{ item.sale_amount }}{% else %}{{ item.amount }}{% endif %}">+</button>
+		</div>
+	</div>
+
+	<br>
+
+	<div value="{{ itme.id }}">
+		<p>총 결제금액</p>
+		<p>
+			<span class="total-amount">
+				{% if item.sale_amount %}
+					{{ item.sale_amount|intcomma }}
+				{% else %}
+					{{ item.amount|intcomma }}
+				{% endif %}
+			</span>
+			<span >원</span>
+		</p>
+	</div>
+
 	<a id="order-new" href="{% url 'order:order_pay' %}">order</a>
 
 	{% if user.is_authenticated %}
@@ -39,4 +67,9 @@
 	<script>const reviewURL = '{{ review_url }}';</script>
 	<script src="{% static 'shop/js/review.js' %}"></script>
 	<script src="{% static 'order/js/order_new.js' %}"></script>
+	<script src="{% static 'order/js/quantity_select.js' %}"></script>
+	<script>
+		const quantitySelecter = new QuantitySelecter(document.querySelectorAll('.factor-btn'));
+		quantitySelecter.quantity_select();
+	</script>
 {% endblock %}
