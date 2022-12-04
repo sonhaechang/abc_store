@@ -1,0 +1,74 @@
+{% extends 'cart/container/layout.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+    <h3>장바구니</h3>
+
+    <hr>
+
+    {% if cart_list %}
+        <table class="table">
+            {% for item in cart_list %}
+                <tbody>
+                    <tr>
+                        <td>
+                            {% for i in item.item.itemimage_image.all|slice:":1" %}
+                                <img src="{{ i.image.url }}" alt="">
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <p>{{ item.item.name }}</p>
+                        </td>
+                        {% if item.product.is_public == True %}
+                            <td>
+                                {% if item.item.sale_amount %}
+                                    {{ item.item.sale_amount|intcomma }} 원
+                                {% else %}
+                                    {{ item.item.amount|intcomma }} 원
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="factor-btn" data-factor="-1" 
+                                    value="{% if item.sale_amount %}{{ item.sale_amount }}{% else %}{{ item.amount }}{% endif %}">-</button>
+                                    <span class="quantity">1</span>
+                                <button class="factor-btn" data-factor="1" 
+                                    value="{% if item.sale_amount %}{{ item.sale_amount }}{% else %}{{ item.amount }}{% endif %}">+</button>
+                            </td>
+                            <td>
+                                <span value="{{ item.total_amount }}">
+                                    {{ item.total_amount|intcomma }}
+                                </span>
+                                <span>원</span>
+                            </td>
+                        {% else %}
+                            <td colspan="3">SOLD OUT</td>
+                        {% endif %}
+                        <td>
+                            <a href="#" value="{{ item.product.pk  }}">
+                                주문하기</small>
+                            </a>
+                            <a href="#">
+                                <small>삭제</small>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            {% endfor %}
+        </table>
+
+        <div>
+            <h3>합계 : </h3>
+            <h3>
+                <span>
+                    {{ cart.get_item_total|intcomma }}
+                </span>
+                원
+            </h3>
+            <button class="d-none" id="select-item-order-btn">선택상품 주문하기</button>
+            <button id="order-all-btn">주문하기</button>
+        </div>
+    {% else %}
+        <p>장바구니에 담긴 상품이 없습니다.</p>
+    {% endif %}
+{% endblock %}

@@ -1,5 +1,3 @@
-from typing import Union
-
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
 
@@ -14,6 +12,6 @@ def cart_list(request: HttpRequest) -> HttpResponse:
     else:
         cart = SessionCart(request)
 
-        return render(request, 'cart/container/cart_list.html', {
-            'cart': cart,
-        })
+    return render(request, 'cart/container/cart_list.html', {
+        'cart_list': cart,
+    })
