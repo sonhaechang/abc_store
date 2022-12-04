@@ -18,7 +18,8 @@ class SessionCart(object):
         ''' 초기화 '''
 
         self.session = request.session
-        cart = self.session[settings.CART_ID]
+
+        cart = self.session.get(settings.CART_ID)
         self.cart = self.session[settings.CART_ID] = dict() if not cart else cart
 
     def __len__(self) -> int:
