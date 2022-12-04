@@ -19,5 +19,6 @@
 		{% else %}
 			<a href="{% url 'login' %}?next={{ request.path }}">Login</a>
 		{% endif %}
+		<a href="{% url 'cart:cart_list' %}">Cart</a>
 	</div>
 </nav>
