@@ -3,7 +3,7 @@ import json
 from typing import Any
 
 from django.conf import settings
-from django.db.models import F, Model
+from django.db.models import F, Model, QuerySet
 from django.http import HttpRequest
 
 from cart.models import Cart
@@ -93,6 +93,20 @@ def get_cookies(request: HttpRequest) -> dict[Any] | None:
 
     return cart_list
 
+def cart_update_or_create(request: HttpRequest, item: Model, cart_qs: QuerySet, quantity: int) -> None:
+    ''' 장바구니에 상품이 있으면 생성 없으면 추가 '''
+
+    if not cart_qs.exists():
+        Cart.objects.create(
+            user=request.user,
+            item=item,
+            quantity=quantity)
+    else:
+        if int(quantity) >= 1:
+            cart_qs.update(quantity=F('quantity') + quantity)
+        else:
+            cart_qs.update(quantity=F('quantity') - quantity)
+
 def session_cart_to_models_cart(request: HttpRequest) -> None:
     ''' 세션 기반 장바구니의 내역을 장바구니 db에 저장'''
 
@@ -103,10 +117,4 @@ def session_cart_to_models_cart(request: HttpRequest) -> None:
             cart_qs = Cart.objects.filter(user=request.user, item=item)
             quantity = int(cart_list[str(item.pk)]['quantity'])
 
-            if not cart_qs.exists():
-                Cart.objects.create(
-                    user=request.user,
-                    item=item,
-                    quantity=quantity)
-            else:
-                cart_qs.update(quantity=F('quantity') + quantity)
+            cart_update_or_create(request, item, cart_qs, quantity)
