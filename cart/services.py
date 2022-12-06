@@ -1,4 +1,3 @@
-from decimal import Decimal
 import json
 from typing import Any
 
@@ -30,11 +29,11 @@ class SessionCart(object):
     def __iter__(self) -> Model:
         ''' Yield 활용한 세션 기반 장바구니에 저장 되어진 상품들을 generator해서 반환 '''
 
-        for item in Item.objects.filter(id__in=self.cart.keys()):
-            self.cart[str(item.id)]['item'] = item
+        # for item in Item.objects.filter(id__in=self.cart.keys()):
+            # self.cart[str(item.id)]['item'] = item
 
         for item in self.cart.values():
-            item['amount'] = Decimal(item['amount'])
+            item['amount'] = item['amount']
             item['total_amount'] = item['amount'] * item['quantity']
 
             yield item
@@ -51,8 +50,18 @@ class SessionCart(object):
         item_id = str(item.id)
 
         if item_id not in self.cart:
-            self.cart[item_id] = {'quantity':0, 'amount':str(item.sale_amount)} \
-                if item.sale_amount else {'quantity':0, 'amount':str(item.amount)}
+            self.cart[item_id] = {'amount': int(item.sale_amount)} \
+                if item.sale_amount else {'amount': int(item.amount)}
+
+            image = item.itemimage_item.first()
+
+            self.cart[item_id].update({
+                'pk': item.pk,
+                'name': item.name,
+                'image': image.url if image is not None else None,
+                'is_public': item.is_public,
+                'quantity': 0,
+            })
 
         self.cart[item_id]['quantity'] += int(quantity)
 
@@ -79,7 +88,7 @@ class SessionCart(object):
     def get_item_total(self) -> int:
         ''' 세션 기반 장바구니에 저장된 모든 상품의 총 금액 반환 '''
 
-        return sum(Decimal(item['amount'])*item['quantity'] for item in self.cart.values())
+        return sum(int(item['amount']) * int(item['quantity']) for item in self.cart.values())
 
 
 def get_cookies(request: HttpRequest) -> dict[Any] | None:
