@@ -46,6 +46,8 @@
 		</p>
 	</div>
 
+	<button id="add-cart" data-item-id="{{ item.id }}">add to cart</button>
+
 	<a id="order-new" href="{% url 'order:order_pay' %}">order</a>
 
 	{% if user.is_authenticated %}
@@ -66,9 +68,18 @@
 	<script src="//unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="{% static 'shop/js/review.js' %}" id="review-js" review-url="{{ review_url }}"></script>
 	<script src="{% static 'order/js/order_new.js' %}"></script>
+	<script src="{% static 'cart/js/cart.js' %}" id="cart-js" 
+		add-cart-url="{% url 'cart:add_cart' %}" cart-list-url="{% url 'cart:cart_list' %}"></script>
 	<script src="{% static 'order/js/quantity_select.js' %}"></script>
 	<script>
 		const quantitySelecter = new QuantitySelecter(document.querySelectorAll('.factor-btn'));
+		const cart = new Cart();
+
 		quantitySelecter.quantity_select();
+		document.getElementById('add-cart').addEventListener('click', e => cart.add_cart(
+			cart,
+			e.currentTarget.getAttribute('data-item-id'),
+			document.querySelector('.quantity').innerText
+		));
 	</script>
 {% endblock %}
