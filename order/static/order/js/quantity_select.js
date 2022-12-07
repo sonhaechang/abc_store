@@ -3,18 +3,7 @@ class QuantitySelecter {
         this.factor_btn = factor_btn;
     }
 
-    comma(str) {
-        str = String(str);
-        return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
-    }
-
-    uncomma(str) {
-        str = String(str);
-        return str.replace(/[^\d]+/g, '');
-    }
-
-    quantity_select() {
-        console.log(this.factor_btn);
+    quantity_select(is_update=false) {
         this.factor_btn.forEach(ele => {
             ele.addEventListener('click', e => {
                 const totalAmount = document.querySelector('.total-amount'),
@@ -23,14 +12,20 @@ class QuantitySelecter {
                     amount = e.currentTarget.getAttribute('value');
         
                 const quantity = parseInt(el.innerHTML) + factor;
-                const total = this.comma(amount * quantity);
+                const total = amount * quantity;
 
-                totalAmount.innerHTML = total;
+                totalAmount.innerHTML = this.comma(total);
+                totalAmount.setAttribute('value', total);
 
                 if (quantity < 1 ) { quantity = 1; }
 				el.innerHTML = quantity;
+
+                if (is_update === true) {
+                    cart.update_quantity(e.currentTarget.getAttribute('data-id'), quantity);
+                }
             })
         })
     }
 }
 
+Object.assign(QuantitySelecter.prototype, commaMixin);

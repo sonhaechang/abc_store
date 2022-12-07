@@ -16,7 +16,14 @@ class Cart {
     }
 
     update_success() {
+        let total_amount = 0;
+        const cart_total = document.getElementById('cart-total');
 
+        document.querySelectorAll('.total-amount').forEach(e => {
+            total_amount += parseInt(e.getAttribute('value'));
+        });
+       
+        cart_total.innerText = this.comma(total_amount);
     }
 
     async axios_api(success_type) {
@@ -39,9 +46,11 @@ class Cart {
         self.axios_api('create');
     }
 
-    update_quantity() {
+    update_quantity(item_id, quantity) {
         this.data.append('item_id', item_id);
         this.data.append('quantity', quantity);
         this.axios_api('update');
     }
 }
+
+Object.assign(Cart.prototype, commaMixin);
