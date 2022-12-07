@@ -23,10 +23,10 @@
                                 {{ item.item.amount|intcomma }} 원
                             </td>
                             <td>
-                                <button class="factor-btn" data-factor="-1" 
+                                <button class="factor-btn" data-factor="-1" data-id="{{ item.item.pk }}"
                                     value="{% if item.item.sale_amount %}{{ item.item.sale_amount }}{% else %}{{ item.item.amount }}{% endif %}">-</button>
                                     <span class="quantity">{{ item.quantity }}</span>
-                                <button class="factor-btn" data-factor="1" 
+                                <button class="factor-btn" data-factor="1" data-id="{{ item.item.pk }}"
                                     value="{% if item.item.sale_amount %}{{ item.item.sale_amount }}{% else %}{{ item.item.amount }}{% endif %}">+</button>
                             </td>
                             <td>
@@ -61,4 +61,18 @@
     {% else %}
         <p>장바구니에 담긴 상품이 없습니다.</p>
     {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="{% static 'order/js/comma_mixin.js' %}"></script>
+    <script src="{% static 'cart/js/cart.js' %}" id="cart-js" 
+		add-cart-url="{% url 'cart:add_cart' %}" cart-list-url="{% url 'cart:cart_list' %}"></script>
+    <script src="{% static 'order/js/quantity_select.js' %}"></script>
+    <script>
+        const cart = new Cart();
+        const quantitySelecter = new QuantitySelecter(document.querySelectorAll('.factor-btn'));
+        
+        quantitySelecter.quantity_select(true);
+    </script>
 {% endblock %}
