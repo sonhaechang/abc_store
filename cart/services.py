@@ -143,7 +143,7 @@ class CookieCart(object):
         cart_list = self.get_cookies()
 
         if cart_list:
-            cart_list[pk] = int(cart_list[pk]) + int(quantity) if pk in cart_list else quantity
+            cart_list[pk] = quantity
         else:
             cart_list = {pk: quantity}
 
