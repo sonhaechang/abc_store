@@ -11,7 +11,7 @@
         <table class="table">
             {% for item in cart_list %}
                 <tbody>
-                    <tr>
+                    <tr id="item-{{ item.item.pk }}">
                         <td>
                             <img src="{{ item.item.image }}" alt="">
                         </td>
@@ -39,8 +39,12 @@
                             <td colspan="3">SOLD OUT</td>
                         {% endif %}
                         <td>
-                            <a href="#" value="{{ item.item.pk  }}">주문하기</a>
-                            <a href="#">삭제</a>
+                            <a href="#" date-id="{{ item.item.pk }}">주문하기</a>
+                            <a href="{% url 'cart:delete_cart' item.item.pk %}" 
+                                class="delete-cart"
+                                data-id="{{ item.item.pk }}">
+                                삭제
+                            </a>
                         </td>
                     </tr>
                 </tbody>
@@ -74,5 +78,9 @@
         const quantitySelecter = new QuantitySelecter(document.querySelectorAll('.factor-btn'));
         
         quantitySelecter.quantity_select(true);
+
+        document.querySelectorAll('.delete-cart').forEach(ele => {
+            ele.addEventListener('click', e => cart.delete_cart(e));
+        });
     </script>
 {% endblock %}

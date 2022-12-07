@@ -26,14 +26,23 @@ class Cart {
         cart_total.innerText = this.comma(total_amount);
     }
 
-    async axios_api(success_type) {
+    delete_success(target, message) {
+        alert(message);
+        document.getElementById(`item-${target.getAttribute('data-id')}`).remove();
+    }
+
+    async axios_api(success_type, delete_target=null) {
+        const url = delete_target != null ? delete_target.getAttribute('href') : this.url;
+
         try {
-			const response = await axios.post(this.url, this.data);
+			const response = await axios.post(url, this.data);
 	
 			if (success_type == 'create') {
                 this.create_success();
-            } else {
+            } else if (success_type == 'update') {
                 this.update_success();
+            } else {
+                this.delete_success(delete_target, response.data.message);
             }
 		} catch(err) {
 			console.error(err);
@@ -50,6 +59,12 @@ class Cart {
         this.data.append('item_id', item_id);
         this.data.append('quantity', quantity);
         this.axios_api('update');
+    }
+
+    delete_cart(event) {
+        event.preventDefault();
+        this.axios_api('delete', event.target);
+        
     }
 }
 

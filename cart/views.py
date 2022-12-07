@@ -39,3 +39,18 @@ def add_cart(request: HttpRequest) -> JsonResponse:
         cookie_cart.add(response, pk, quantity)
 
     return response
+
+def delete_cart(request: HttpRequest, item_pk: str) -> JsonResponse:
+    ''' 장바구니 삭제 '''
+
+    item = get_object_or_404(Item, id=item_pk)
+    response = JsonResponse(data={'message': '삭제했습니다.'}, status=status.HTTP_200_OK)
+
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user, item=item)
+        cart.delete()
+    else:
+        cart = CookieCart(request)
+        cart.delete(response, str(item_pk))
+    
+    return response
