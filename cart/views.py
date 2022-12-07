@@ -1,12 +1,10 @@
-import json
-from django.db.models import F
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 
 from rest_framework import status
 
 from cart.models import Cart
-from cart.services import SessionCart, cart_update_or_create
+from cart.services import CookieCart, cart_update_or_create
 
 from shop.models import Item
 
@@ -18,7 +16,7 @@ def cart_list(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).select_related('user')
     else:
-        cart = SessionCart(request)
+        cart = CookieCart(request)
 
     return render(request, 'cart/container/cart_list.html', {
         'cart_list': cart,
@@ -31,11 +29,13 @@ def add_cart(request: HttpRequest) -> JsonResponse:
     quantity = request.POST.get('quantity')
     item = get_object_or_404(Item, pk=pk)
 
+    response = JsonResponse(data={'message': 'success'}, status=status.HTTP_200_OK)
+
     if request.user.is_authenticated:
         cart_qs = Cart.objects.filter(user=request.user, item=item)
         cart_update_or_create(request, item, cart_qs, quantity)
     else:
-        cart = SessionCart(request)
-        cart.add(item=item, quantity=str(quantity))
+        cookie_cart = CookieCart(request)
+        cookie_cart.set_cookie(response, pk, quantity)
 
-    return JsonResponse(data={'message': 'success'}, status=status.HTTP_200_OK)
+    return response
