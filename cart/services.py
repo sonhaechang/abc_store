@@ -149,6 +149,16 @@ class CookieCart(object):
 
         return self.set_cookie(response, cart_list)
 
+    def delete(self, response: JsonResponse, pk: str) -> JsonResponse:
+        ''' 특정 상품을 쿠키 장바구니에서 제거 '''
+
+        cart_list = self.get_cookies()
+
+        if pk in cart_list:
+            del cart_list[pk]
+
+        return self.set_cookie(response, cart_list)
+
 def get_cookies(request: HttpRequest) -> dict[Any] | None:
     ''' 쿠키에 저장되어져 있는 장바구니 내역 가져와서 dict로 변환해서 반환 '''
 
