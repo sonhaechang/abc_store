@@ -22,10 +22,10 @@
 		<p id="remaining-quantity" class="d-none">{{ item.stock }}</p>
 		<div class="col-5 text-left pr-0">수량 선택</div>
 		<div>
-			<button class="factor-btn" data-factor="-1" 
+			<button class="factor-btn" data-factor="-1" data-id="{{ item.pk }}"
 				value="{% if item.sale_amount %}{{ item.sale_amount }}{% else %}{{ item.amount }}{% endif %}">-</button>
 				<span class="quantity">1</span>
-			<button class="factor-btn" data-factor="1" 
+			<button class="factor-btn" data-factor="1" data-id="{{ item.pk }}"
 				value="{% if item.sale_amount %}{{ item.sale_amount }}{% else %}{{ item.amount }}{% endif %}">+</button>
 		</div>
 	</div>
@@ -35,7 +35,7 @@
 	<div value="{{ itme.id }}">
 		<p>총 결제금액</p>
 		<p>
-			<span class="total-amount">
+			<span class="total-amount" value="{{ item.total_amount }}">
 				{% if item.sale_amount %}
 					{{ item.sale_amount|intcomma }}
 				{% else %}
@@ -68,6 +68,7 @@
 	<script src="//unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="{% static 'shop/js/review.js' %}" id="review-js" review-url="{{ review_url }}"></script>
 	<script src="{% static 'order/js/order_new.js' %}"></script>
+	<script src="{% static 'order/js/comma_mixin.js' %}"></script>
 	<script src="{% static 'cart/js/cart.js' %}" id="cart-js" 
 		add-cart-url="{% url 'cart:add_cart' %}" cart-list-url="{% url 'cart:cart_list' %}"></script>
 	<script src="{% static 'order/js/quantity_select.js' %}"></script>
