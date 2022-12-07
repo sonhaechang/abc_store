@@ -13,7 +13,12 @@
                 <tbody>
                     <tr id="item-{{ item.item.pk }}">
                         <td>
-                            <img src="{{ item.item.image }}" alt="">
+                            {% if item.item.get_first_image %}
+                                <img src="{{ item.item.get_first_image.url }}" alt="{{ item.item.name }}-image" 
+                                    style="width: 50px; height: 50px;">
+                            {% else %}
+                                <div class="bg-light" style="width: 50px; height: 50px;"></div>
+                            {% endif %}
                         </td>
                         <td>
                             <p>{{ item.item.name }}</p>

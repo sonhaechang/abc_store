@@ -50,7 +50,7 @@ class SessionCart(object):
                 'pk': item.pk,
                 'name': item.name,
                 'amount': item.sale_amount if item.sale_amount else item.amount,
-                'image': item.itemimage_item.first(),
+                'get_first_image': item.itemimage_item.first(),
                 'is_public': item.is_public,
             }
 
@@ -104,7 +104,7 @@ class CookieCart(object):
                     'name': item.name,
                     'amount': amount,
                     'total_amount': int(amount) * int(v),
-                    'image': item.itemimage_item.first(),
+                    'get_first_image': item.itemimage_item.first(),
                     'is_public': item.is_public,
                 }
             }

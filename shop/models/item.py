@@ -101,6 +101,9 @@ class Item(HistoryModel):
 	def __str__(self):
 		return self.name
 
+	def get_first_image(self):
+		return self.itemimage_item.first()
+
 	def get_absolute_url(self):
 		return reverse(
 			'shop:item_detail', 
