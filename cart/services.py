@@ -3,7 +3,7 @@ from typing import Any
 
 from django.conf import settings
 from django.db.models import F, Model, QuerySet
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, JsonResponse
 
 from cart.models import Cart
 
@@ -132,12 +132,12 @@ class CookieCart(object):
 
         return cart_list
 
-    def set_cookie(self, response: JsonResponse, cart: dict) -> JsonResponse:
+    def set_cookie(self, response: JsonResponse, cart: dict) -> None:
         ''' 변동 사항 쿠키로 저장 '''
 
-        return response.set_cookie('cart_list', str(cart), max_age=86400*30)
+        response.set_cookie('cart_list', str(cart), max_age=86400*30)
 
-    def add(self, response: JsonResponse, pk: str, quantity: str) -> JsonResponse:
+    def add(self, response: JsonResponse, pk: str, quantity: str) -> None:
         ''' 특정 상품을 쿠키 장바구니에 저장 '''
 
         cart_list = self.get_cookies()
@@ -147,9 +147,9 @@ class CookieCart(object):
         else:
             cart_list = {pk: quantity}
 
-        return self.set_cookie(response, cart_list)
+        self.set_cookie(response, cart_list)
 
-    def delete(self, response: JsonResponse, pk: str) -> JsonResponse:
+    def delete(self, response: JsonResponse, pk: str) -> None:
         ''' 특정 상품을 쿠키 장바구니에서 제거 '''
 
         cart_list = self.get_cookies()
@@ -157,7 +157,7 @@ class CookieCart(object):
         if pk in cart_list:
             del cart_list[pk]
 
-        return self.set_cookie(response, cart_list)
+        self.set_cookie(response, cart_list)
 
 def get_cookies(request: HttpRequest) -> dict[Any] | None:
     ''' 쿠키에 저장되어져 있는 장바구니 내역 가져와서 dict로 변환해서 반환 '''
