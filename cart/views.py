@@ -36,6 +36,6 @@ def add_cart(request: HttpRequest) -> JsonResponse:
         cart_update_or_create(request, item, cart_qs, quantity)
     else:
         cookie_cart = CookieCart(request)
-        cookie_cart.set_cookie(response, pk, quantity)
+        cookie_cart.add(response, pk, quantity)
 
     return response

@@ -132,12 +132,12 @@ class CookieCart(object):
 
         return cart_list
 
-    def save(self, response: JsonResponse, cart: dict) -> JsonResponse:
+    def set_cookie(self, response: JsonResponse, cart: dict) -> JsonResponse:
         ''' 변동 사항 쿠키로 저장 '''
 
         return response.set_cookie('cart_list', str(cart), max_age=86400*30)
 
-    def set_cookie(self, response: JsonResponse, pk: str, quantity: str) -> JsonResponse:
+    def add(self, response: JsonResponse, pk: str, quantity: str) -> JsonResponse:
         ''' 특정 상품을 쿠키 장바구니에 저장 '''
 
         cart_list = self.get_cookies()
@@ -147,8 +147,7 @@ class CookieCart(object):
         else:
             cart_list = {pk: quantity}
 
-        return self.save(response, cart_list)
-
+        return self.set_cookie(response, cart_list)
 
 def get_cookies(request: HttpRequest) -> dict[Any] | None:
     ''' 쿠키에 저장되어져 있는 장바구니 내역 가져와서 dict로 변환해서 반환 '''
