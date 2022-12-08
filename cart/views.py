@@ -15,11 +15,14 @@ def cart_list(request: HttpRequest) -> HttpResponse:
 
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).select_related('user')
+        get_item_total = sum(item.quantity * item.item.amount for item in cart)
     else:
         cart = CookieCart(request)
+        get_item_total = cart.get_item_total()
 
     return render(request, 'cart/container/cart_list.html', {
         'cart_list': cart,
+        'get_item_total': get_item_total
     })
 
 def add_cart(request: HttpRequest) -> JsonResponse:
