@@ -137,7 +137,7 @@ class CookieCart(object):
 
         return cart_list
 
-    def set_cookie(self, response: JsonResponse, cart: dict) -> None:
+    def set_cookie(self, response: RedirectOrResponse, cart: dict) -> None:
         ''' 변동 사항 쿠키로 저장 '''
 
         response.set_cookie('cart_list', str(cart), max_age=86400*30)
@@ -147,7 +147,7 @@ class CookieCart(object):
 
         response.delete_cookie('cart_list')
 
-    def add(self, response: JsonResponse, pk: str, quantity: str) -> None:
+    def add(self, response: RedirectOrResponse, pk: str, quantity: str) -> None:
         ''' 특정 상품을 쿠키 장바구니에 저장 '''
 
         cart_list = self.get_cookies()
@@ -159,7 +159,7 @@ class CookieCart(object):
 
         self.set_cookie(response, cart_list)
 
-    def delete(self, response: JsonResponse, pk: str) -> None:
+    def delete(self, response: RedirectOrResponse, pk: str) -> None:
         ''' 특정 상품을 쿠키 장바구니에서 제거 '''
 
         cart_list = self.get_cookies()
