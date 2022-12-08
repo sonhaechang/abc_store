@@ -95,6 +95,11 @@ class CookieCart(object):
 
         self.request = request
 
+    def __len__(self) -> int:
+        ''' 쿠키 기반 장바구니에 저장 되어진 상품 전체 수량 반환 '''
+
+        return sum(int(item) for item in self.get_cookies().values())
+
     def __iter__(self) -> dict[Any]:
         ''' Yield 활용한 쿠키 기반 장바구니에 저장 되어진 상품들을 generator해서 반환 '''
 
@@ -113,7 +118,7 @@ class CookieCart(object):
                     'is_public': item.is_public,
                 }
             }
-    
+
     def get_item_total(self) -> int:
         ''' 쿠키 기반 장바구니에 저장된 모든 상품의 총 금액 반환 '''
 
@@ -134,8 +139,8 @@ class CookieCart(object):
         if cart_list is not None:
             json_cart_list = cart_list.replace("'","\"")
             cart_list = json.loads(json_cart_list)
-
-        return cart_list
+            return cart_list
+        return dict()
 
     def set_cookie(self, response: RedirectOrResponse, cart: dict) -> None:
         ''' 변동 사항 쿠키로 저장 '''
