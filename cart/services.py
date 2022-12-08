@@ -169,17 +169,6 @@ class CookieCart(object):
 
         self.set_cookie(response, cart_list)
 
-def get_cookies(request: HttpRequest) -> dict[Any] | None:
-    ''' 쿠키에 저장되어져 있는 장바구니 내역 가져와서 dict로 변환해서 반환 '''
-
-    cart_list = request.COOKIES.get('cart_list', None)
-
-    if cart_list is not None:
-        json_cart_list = cart_list.replace("'","\"")
-        cart_list = json.loads(json_cart_list)
-
-    return cart_list
-
 def cart_update_or_create(request: HttpRequest, item: Model, cart_qs: QuerySet, quantity: int) -> None:
     ''' 장바구니에 상품이 있으면 생성 없으면 추가 '''
 
@@ -194,10 +183,8 @@ def cart_update_or_create(request: HttpRequest, item: Model, cart_qs: QuerySet, 
         else:
             cart_qs.update(quantity=F('quantity') - quantity)
 
-def session_cart_to_models_cart(request: HttpRequest) -> None:
+def anonymous_user_cart_to_db_cart(request: HttpRequest, cart_list: dict[Any]) -> None:
     ''' 세션 기반 장바구니의 내역을 장바구니 db에 저장'''
-
-    cart_list = get_cookies(request)
     
     if cart_list:
         for item in Item.objects.filter(id__in=cart_list.keys()):
