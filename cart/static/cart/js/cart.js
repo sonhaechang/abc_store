@@ -8,6 +8,23 @@ class Cart {
 	    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
     }
 
+    set_total_amount() {
+        let total_amount = 0;
+        const cart_total = document.getElementById('cart-total');
+
+        document.querySelectorAll('.total-amount').forEach(e => {
+            total_amount += parseInt(e.getAttribute('value'));
+        });
+        
+        if (total_amount === 0) {
+            document.getElementById('cart-table').remove();
+            document.getElementById('cart-total-wrap').remove();
+            document.getElementById('cart-content').innerHTML = '<p>장바구니에 담긴 상품이 없습니다.</p>';
+        } else {
+            cart_total.innerText = this.comma(total_amount);
+        }
+    }
+
     create_success() {
         const result = confirm('장바구니에 상품이 추가 되었습니다. 장바구니를 확인하시겠습니까?');
         if (result) {
@@ -16,19 +33,13 @@ class Cart {
     }
 
     update_success() {
-        let total_amount = 0;
-        const cart_total = document.getElementById('cart-total');
-
-        document.querySelectorAll('.total-amount').forEach(e => {
-            total_amount += parseInt(e.getAttribute('value'));
-        });
-       
-        cart_total.innerText = this.comma(total_amount);
+        this.set_total_amount();
     }
 
     delete_success(target, message) {
         alert(message);
         document.getElementById(`item-${target.getAttribute('data-id')}`).remove();
+        this.set_total_amount();
     }
 
     async axios_api(success_type, delete_target=null) {
