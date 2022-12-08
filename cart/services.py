@@ -142,7 +142,7 @@ class CookieCart(object):
 
         response.set_cookie('cart_list', str(cart), max_age=86400*30)
 
-    def delete_cookie(response: RedirectOrResponse) -> None:
+    def delete_cookie(self, response: RedirectOrResponse) -> None:
         ''' 쿠키 삭제 '''
 
         response.delete_cookie('cart_list')
@@ -189,6 +189,6 @@ def anonymous_user_cart_to_db_cart(request: HttpRequest, cart_list: dict[Any]) -
     if cart_list:
         for item in Item.objects.filter(id__in=cart_list.keys()):
             cart_qs = Cart.objects.filter(user=request.user, item=item)
-            quantity = int(cart_list[str(item.pk)]['quantity'])
+            quantity = int(cart_list[str(item.pk)])
 
             cart_update_or_create(request, item, cart_qs, quantity)

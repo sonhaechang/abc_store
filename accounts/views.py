@@ -20,6 +20,8 @@ from django.urls import reverse
 
 from rest_framework import status
 
+from cart.services import CookieCart, anonymous_user_cart_to_db_cart
+
 from core.decorators import logout_required
 
 from accounts.forms import (
@@ -31,6 +33,7 @@ from accounts.forms import (
 RedirectOrResponse = Union[HttpResponseRedirect, HttpResponse]
 
 User = get_user_model()
+
 
 # Create your views here.
 @logout_required
@@ -48,8 +51,16 @@ def login(request: HttpRequest) -> RedirectOrResponse:
 			# Django의 auth앱에서 제공하는 login함수를 실행해 앞으로의 요청/응답에 세션을 유지한다
 			django_login(request, user)
 
-			# next_url가 존재하면 해당 위치로, 없으면 메인 목록 화면으로 이동
-			return redirect(next_url if next_url else '/')
+			# next_url가 존재하면 해당 위치로, 없으면 메인 목록 화면으로 이동하는 reidrect response 새성
+			response = redirect(next_url if next_url else '/')
+
+			# 비로그인 장바구니에 내역이 있으면 로그인한 user의 장바구니 db에 내역 옮겨서 저장후 비로그인 장바구니에 내역은 삭제
+			cookie_cart = CookieCart(request)
+			anonymous_user_cart_to_db_cart(request, cookie_cart.get_cookies())
+			cookie_cart.delete_cookie(response)
+
+			# 완료후 response 위치에 따라 이동
+			return response
 
 		# 인증에 실패하면 login_form에 non_field_error를 추가한다
 		form.add_error(None, '아이디 또는 비밀번호가 올바르지 않습니다')
