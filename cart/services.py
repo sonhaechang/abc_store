@@ -104,11 +104,11 @@ class CookieCart(object):
 
             yield {
                 'quantity': v,
+                'total_amount': int(amount) * int(v),
                 'item': {
                     'pk': item.pk,
                     'name': item.name,
                     'amount': amount,
-                    'total_amount': int(amount) * int(v),
                     'get_first_image': item.itemimage_item.first(),
                     'is_public': item.is_public,
                 }
@@ -179,9 +179,9 @@ def cart_update_or_create(request: HttpRequest, item: Model, cart_qs: QuerySet, 
             quantity=quantity)
     else:
         if int(quantity) >= 1:
-            cart_qs.update(quantity=F('quantity') + quantity)
+            cart_qs.update(quantity=quantity)
         else:
-            cart_qs.update(quantity=F('quantity') - quantity)
+            cart_qs.update(quantity=1)
 
 def anonymous_user_cart_to_db_cart(request: HttpRequest, cart_list: dict[Any]) -> None:
     ''' 세션 기반 장바구니의 내역을 장바구니 db에 저장'''
