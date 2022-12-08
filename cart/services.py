@@ -1,13 +1,18 @@
 import json
-from typing import Any
+from typing import Any, Union
 
 from django.conf import settings
 from django.db.models import F, Model, QuerySet
-from django.http import HttpRequest, JsonResponse
+from django.http import (
+    HttpRequest, HttpResponse, HttpResponseRedirect,
+    JsonResponse,
+)
 
 from cart.models import Cart
 
 from shop.models import Item
+
+RedirectOrResponse = Union[HttpResponseRedirect, HttpResponse, JsonResponse]
 
 
 class SessionCart(object):
@@ -136,6 +141,11 @@ class CookieCart(object):
         ''' 변동 사항 쿠키로 저장 '''
 
         response.set_cookie('cart_list', str(cart), max_age=86400*30)
+
+    def delete_cookie(response: RedirectOrResponse) -> None:
+        ''' 쿠키 삭제 '''
+
+        response.delete_cookie('cart_list')
 
     def add(self, response: JsonResponse, pk: str, quantity: str) -> None:
         ''' 특정 상품을 쿠키 장바구니에 저장 '''
