@@ -35,7 +35,7 @@
                                     value="{% if item.item.sale_amount %}{{ item.item.sale_amount }}{% else %}{{ item.item.amount }}{% endif %}">+</button>
                             </td>
                             <td>
-                                <span class="total-amount" value="{{ item.total_amount }}">
+                                <span id="total-amount-{{ item.item.pk }}" class="total-amount" value="{{ item.total_amount }}">
                                     {{ item.total_amount|intcomma }}
                                 </span>
                                 <span>원</span>
