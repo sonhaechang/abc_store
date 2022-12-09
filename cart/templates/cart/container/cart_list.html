@@ -7,10 +7,10 @@
 
     <div id="cart-content">
         {% if cart_list %}
-            <table id="cart-table" class="table">
-                {% for item in cart_list %}
-                    <tbody>
-                        <tr id="item-{{ item.item.pk }}">
+            <table id="item-list" class="table cart-table">
+                <tbody>
+                    {% for item in cart_list %}
+                        <tr id="item-{{ item.item.pk }}" class="item">
                             <td>
                                 {% if item.item.get_first_image %}
                                     <img src="{{ item.item.get_first_image.url }}" alt="{{ item.item.name }}-image" 
@@ -51,8 +51,8 @@
                                 </a>
                             </td>
                         </tr>
-                    </tbody>
-                {% endfor %}
+                    {% endfor %}
+                </tbody>
             </table>
 
             <div id="cart-total-wrap">

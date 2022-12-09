@@ -17,7 +17,7 @@ class Cart {
         });
         
         if (total_amount === 0) {
-            document.getElementById('cart-table').remove();
+            document.querySelector('.cart-table').remove();
             document.getElementById('cart-total-wrap').remove();
             document.getElementById('cart-content').innerHTML = '<p>장바구니에 담긴 상품이 없습니다.</p>';
         } else {
