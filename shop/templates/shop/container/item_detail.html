@@ -78,7 +78,6 @@
 
 		quantitySelecter.quantity_select();
 		document.getElementById('add-cart').addEventListener('click', e => cart.add_cart(
-			cart,
 			e.currentTarget.getAttribute('data-item-id'),
 			document.querySelector('.quantity').innerText
 		));

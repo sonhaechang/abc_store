@@ -60,10 +60,10 @@ class Cart {
 		}
     }
 
-    add_cart(self, item_id, quantity) {
-        self.data.append('item_id', item_id);
-        self.data.append('quantity', quantity);
-        self.axios_api('create');
+    add_cart(item_id, quantity) {
+        this.data.append('item_id', item_id);
+        this.data.append('quantity', quantity);
+        this.axios_api('create');
     }
 
     update_quantity(item_id, quantity) {
@@ -75,7 +75,6 @@ class Cart {
     delete_cart(event) {
         event.preventDefault();
         this.axios_api('delete', event.target);
-        
     }
 }
 
