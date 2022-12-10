@@ -8,7 +8,7 @@ from django.views.generic import ListView
 
 from core.mixins import PaginationsMixins
 
-from shop.models import Category, CategoryDetail, Item
+from shop.models import Category, Item
 from shop.services import item_count
 
 
@@ -25,7 +25,7 @@ class CategoryListAllView(PaginationsMixins, ListView):
 		category = self.get_object()
 
 		if category is not None:
-			return category.categorydetail_category.all(
+			return category.category_category.all(
 				).order_by('created_at').prefetch_related('item_category')
 		else:
 			return list()
@@ -46,12 +46,11 @@ class CategoryListAllView(PaginationsMixins, ListView):
 class CategoryListView(PaginationsMixins, ListView):
 	''' 카테고리에 상세 카데고리별 상품 목록 '''
 
-	model = CategoryDetail
+	model = Category
 	template_name = 'shop/container/category_list.html'
-
+	
 	def get_object(self, **kwargs: Any) -> Model:
-		return get_object_or_404(
-			self.model.objects.select_related('category'), slug=self.kwargs['sub_category_slug'])
+		return get_object_or_404(self.model, slug=self.kwargs['sub_category_slug'])
 
 	def get_queryset(self, **kwargs: Any) -> list[Model]:
 		return [category for category in \
@@ -60,8 +59,8 @@ class CategoryListView(PaginationsMixins, ListView):
 	def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
 		context = super().get_context_data(**kwargs)
 		category = self.get_object()
-		categorys = self.model.objects.prefetch_related(
-			'item_category').select_related('category').filter(category__pk=category.category.pk)
+		categorys = self.model.objects.prefetch_related('item_category').filter(
+			category__pk=category.category.pk)
 
 		context['category'] = category
 		context['categorys'] = categorys
@@ -71,7 +70,7 @@ class CategoryListView(PaginationsMixins, ListView):
 		return context
 
 def item_detail(request: HttpRequest, category_slug: str, 
-				sub_category_slug: str, item_slug: str) -> HttpResponse:
+	sub_category_slug: str, item_slug: str) -> HttpResponse:
 
 	''' 상품 상세 '''			
 

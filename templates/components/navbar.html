@@ -5,7 +5,7 @@
 		{% for category in navbar_categorys %}
 			<div class="px-3">
 				<p>{{ category }}</p>
-				{% for menu in category.categorydetail_category.all %}
+				{% for menu in category.category_category.all %}
 					<a href="{% url 'shop:category_list' category.slug menu.slug %}">{{ menu }}</a>
 				{% endfor %}
 			</div>
