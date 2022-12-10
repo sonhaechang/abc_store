@@ -26,7 +26,6 @@ from core.decorators import logout_required
 
 from accounts.forms import (
 	LoginForm, SignupForm, 
-	ProfileDetailForm, ProfileEditForm,
 	PasswordChangeForm, PasswordResetForm, SetPasswordForm,
 )
 
@@ -85,33 +84,6 @@ def signup(request: HttpRequest) -> RedirectOrResponse:
 		form = SignupForm()
 
 	return render(request, 'accounts/container/signup.html', {
-		'form': form,
-	})
-
-@login_required
-def profile(request: HttpResponse) -> RedirectOrResponse:
-	''' 프로필 확인 '''
-
-	form = ProfileDetailForm(instance=request.user)
-
-	return render(request, 'accounts/container/profile.html', {
-        'form': form,
-    })
-
-@login_required
-def profile_edit(request: HttpResponse) -> RedirectOrResponse:
-	''' 프로필 수정 '''
-
-	if request.method == 'POST':
-		form = ProfileEditForm(request.POST, instance=request.user)
-
-		if form.is_valid():
-			form.save()
-			return redirect('/accounts/profile')
-	else:
-		form = ProfileEditForm(instance=request.user)
-
-	return render(request, 'accounts/container/profile_edit.html', {
 		'form': form,
 	})
 
