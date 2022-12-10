@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 from django_seed import Seed
 
-from shop.models import Category, CategoryDetail
+from shop.models import Category
 
 
 class Command(BaseCommand):
@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
 	def create_category_detail(self, category, category_details):
 		for detail in category_details:
-			CategoryDetail.objects.create(
+			Category.objects.create(
 				category=category,
 				name=detail,
 				slug=detail

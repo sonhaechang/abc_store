@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 from django_seed import Seed
 
-from shop.models import CategoryDetail, Item
+from shop.models import Category, Item
 
 class Command(BaseCommand):
 	model_name = f'{Item}'
@@ -25,7 +25,7 @@ class Command(BaseCommand):
 		seeder = Seed.seeder()
 		fake = Faker(['ko_KR'])
 
-		categorys = CategoryDetail.objects.all()
+		categorys = Category.objects.filter(category__isnull=False)
 
 		is_sales = [1, 2]
 		booleans = [True, False]
