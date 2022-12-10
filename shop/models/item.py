@@ -16,7 +16,7 @@ def item_image_upload_to(instance, filename):
 
 class Item(HistoryModel):
 	category = models.ForeignKey(
-		to='shop.CategoryDetail', 
+		to='shop.Category', 
 		on_delete=models.SET_NULL, 
 		related_name='%(class)s_category',
 		null=True,
