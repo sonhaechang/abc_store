@@ -1,13 +1,14 @@
 from django.contrib import admin
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
 
-from shop.models import Category, CategoryDetail, Item, ItemImage, Review
+from shop.models import Category, Item, ItemImage, Review
 
 # Register your models here.
 class ReviewDateCreatedFilter(admin.SimpleListFilter):
-    title = '리뷰 작성일'
+    title = _('리뷰 작성일')
     parameter_name = 'created_at'
 
     def lookups(self, reuqest, model_admin):
@@ -37,6 +38,18 @@ class ReviewDateCreatedFilter(admin.SimpleListFilter):
         return queryset
 
 
+class CategoryFilter(admin.SimpleListFilter):
+    title = _('메인 카테고리')
+    parameter_name = 'category'
+
+    def lookups(self, request, model_admin):
+        categorys = set([category.category for category in model_admin.model.objects.exclude(category=None)])
+        return [(category.pk, category.name) for category in categorys]
+
+    def queryset(self, request, queryset):
+        return queryset.filter(category__pk__exact=self.value())
+
+
 class ItemImageInline(admin.StackedInline):
     model = ItemImage
     raw_id_fields = ['item']
@@ -51,18 +64,11 @@ class ReviewInline(admin.StackedInline):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-	list_display = ['id', 'name', 'created_at', 'updated_at']
-	list_display_links = ['id', 'name']
-	search_fields = ['name']
-	prepopulated_fields = {'slug':('name',)}
-
-
-@admin.register(CategoryDetail)
-class CategoryDetailAdmin(admin.ModelAdmin):
-	list_display = ['id', 'category', 'name', 'created_at', 'updated_at']
-	list_display_links = ['id', 'name']
-	search_fields = ['name']
-	prepopulated_fields = {'slug':('name',)}
+    list_display = ['id', 'name', 'created_at', 'updated_at']
+    list_display_links = ['id', 'name']
+    list_filter = [CategoryFilter]
+    search_fields = ['name']
+    prepopulated_fields = {'slug':('name',)}
 
 
 @admin.register(Item)
