@@ -48,8 +48,6 @@
 
 	<button id="add-cart" data-item-id="{{ item.id }}">add to cart</button>
 
-	<a id="order-new" href="{% url 'order:order_pay' %}">order</a>
-
 	{% if user.is_authenticated %}
 		<form method="post" enctype="multipart/form-data" id="review-form">
 			<input type="number" name="rating" min="1" max="5" required>

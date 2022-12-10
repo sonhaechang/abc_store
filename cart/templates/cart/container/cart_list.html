@@ -10,13 +10,18 @@
             <table id="item-list" class="table cart-table">
                 <tbody>
                     {% for item in cart_list %}
-                        <tr id="item-{{ item.item.pk }}" class="item">
+                        <tr id="item-{{ item.item.pk }}" class="item" data-item-id="{{ item.item.pk }}">
+                            <td>
+                                <label for="{{ item.item.pk }}" class="checkbox-label">
+                                    <input type="checkbox" name="item-checkbox" data-id="{{ item.item.pk }}" class="item-checkbox">
+                                </label>
+                            </td>
                             <td>
                                 {% if item.item.get_first_image %}
                                     <img src="{{ item.item.get_first_image.url }}" alt="{{ item.item.name }}-image" 
                                         style="width: 50px; height: 50px;">
                                 {% else %}
-                                    <div class="bg-light" style="width: 50px; height: 50px;"></div>
+                                    <div class="bg-dark" style="width: 50px; height: 50px;"></div>
                                 {% endif %}
                             </td>
                             <td>
@@ -43,7 +48,6 @@
                                 <td colspan="3">SOLD OUT</td>
                             {% endif %}
                             <td>
-                                <a href="#" date-id="{{ item.item.pk }}">주문하기</a>
                                 <a href="{% url 'cart:delete_cart' item.item.pk %}" 
                                     class="delete-cart"
                                     data-id="{{ item.item.pk }}">
@@ -58,13 +62,12 @@
             <div id="cart-total-wrap">
                 <h3>합계 : </h3>
                 <h3>
-                    <span id="cart-total" value="{{ get_item_total }}">
-                        {{ get_item_total|intcomma }}
-                    </span>
-                    원
+                    <span id="cart-total" value="0">0</span> 원
                 </h3>
-                <button class="d-none" id="select-item-order-btn">선택상품 주문하기</button>
-                <button id="order-all-btn">주문하기</button>
+                <a href="{% url 'order:order_pay' %}" 
+                    id="order-btn">
+                    주문하기
+                </a>
             </div>
         {% else %}
             <p>장바구니에 담긴 상품이 없습니다.</p>
@@ -73,19 +76,29 @@
 {% endblock %}
 
 {% block script %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.10.2/underscore-min.js"></script>
     <script src="//unpkg.com/axios/dist/axios.min.js"></script>
     <script src="{% static 'order/js/comma_mixin.js' %}"></script>
+    <script src="{% static 'order/js/order_new.js' %}"></script>
     <script src="{% static 'cart/js/cart.js' %}" id="cart-js" 
 		add-cart-url="{% url 'cart:add_cart' %}" cart-list-url="{% url 'cart:cart_list' %}"></script>
     <script src="{% static 'order/js/quantity_select.js' %}"></script>
     <script>
         const cart = new Cart();
+        const order = new Order();
         const quantitySelecter = new QuantitySelecter(document.querySelectorAll('.factor-btn'));
-        
+        const order_btn = document.getElementById('order-btn');
+
         quantitySelecter.quantity_select(true);
 
         document.querySelectorAll('.delete-cart').forEach(ele => {
             ele.addEventListener('click', e => cart.delete_cart(e));
         });
+
+        order.select_items(document.getElementsByName("item-checkbox"));
+
+        if (order_btn) {
+            order_btn.addEventListener('click', e => order.order_new(e));
+        }
     </script>
 {% endblock %}
