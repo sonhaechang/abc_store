@@ -184,7 +184,7 @@ def cart_update_or_create(request: HttpRequest, item: Model, cart_qs: QuerySet, 
             quantity=quantity)
     else:
         if int(quantity) >= 1:
-            cart_qs.update(quantity=quantity)
+            cart_qs.update(quantity=F('quantity') + int(quantity))
         else:
             cart_qs.update(quantity=1)
 
