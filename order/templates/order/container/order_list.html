@@ -1,0 +1,55 @@
+{% extends 'order/container/layout.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+    <div class="d-flex justify-content-between">
+        <div>
+            <p>미결제</p>
+            <p>{{ ready }}</p>
+        </div>
+        <div>
+            <p>결제완료</p>
+            <p>{{ paid }}</p>
+        </div>
+        <div>
+            <p>배송중</p>
+            <p>{{ shipping }}</p>
+        </div>
+        <div>
+            <p>배송완료</p>
+            <p>{{ shipping_complete }}</p>
+        </div>
+        <div>
+            <p>교환/반품</p>
+            <p>{{ exchange_return }}</p>
+        </div>
+    </div>
+
+    <table class="table table-borderless" id="order-list">
+        <thead>
+          <tr>
+              <th>주문일자</th>
+              <th>상품명</th>
+              <th>결제금액</th>
+              <th>처리상태</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% if obj_list %}
+                {% for obj in obj_list %}
+                    <tr>
+                        <td id="obj-list-time">{{ obj.created_at }}</td>
+                        <td id="obj-list-name">{{ obj.name }}</td>
+                        <td>{{ obj.amount|intcomma }}원</td>
+                        <td>{{ obj.status_html }}</td>
+                    </tr>
+                {% endfor %} 
+
+                {% include 'components/pagination.html' %}
+            {% else %}
+                <td colspan="4" class="text-center">주문 내역이 없습니다.</td>
+            {% endif %}
+        </tbody>
+    </table>
+{% endblock %}

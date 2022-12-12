@@ -1,8 +1,16 @@
+from typing import Any, Dict
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
+from django.views.generic import ListView
 
+from core.mixins import PaginationsMixins
+
+from order.enums import OrderStautsEnum
 from order.forms import OrderForm
 from order.models import Order, OrderItem
 from order.services import OrderInfo, OrderItemHandler
@@ -11,6 +19,28 @@ from shop.models import Item
 
 
 # Create your views here.
+class OrderListView(LoginRequiredMixin, PaginationsMixins, ListView):
+	''' 사옹자별 주문(결제) 목록 확인 '''
+
+	template_name = 'order/container/order_list.html'
+
+	def get_queryset(self, **kwargs: Any) -> QuerySet:
+		return Order.objects.filter(user=self.request.user).select_related('user')
+
+	def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+		context = super().get_context_data(**kwargs)
+		status = OrderStautsEnum
+		queryset = self.get_queryset()
+
+		context['ready'] = queryset.filter(status=status.ready).count()
+		context['paid'] = queryset.filter(status=status.paid).count()
+		context['shipping'] = queryset.filter(status=status.shipping).count()
+		context['shipping_complete'] = queryset.filter(status=status.shipping_complete).count()
+		context['exchange_return'] = queryset.filter(exchange_return='True').count()
+
+		return context
+
+
 @login_required
 def order_pay(request: HttpRequest) -> HttpResponse:
 	item_qs = Item.objects.filter(id__in=request.GET.keys())
