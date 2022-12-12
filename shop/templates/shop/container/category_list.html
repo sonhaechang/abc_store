@@ -2,14 +2,19 @@
 {% load static %}
 
 {% block content %}
-	{% for item in obj_list %}
-		<a href="{{ item.get_absolute_url }}">
-			{{ item }}
+	{% if obj_list %}
+		{% for item in obj_list %}
+			<a href="{{ item.get_absolute_url }}">
+				{{ item }}
+			</a>
+		{% endfor %}
+
+		<a href="{% url 'shop:category_list_all' category.category.slug %}">
+			ALL
 		</a>
-	{% endfor %}
 
-	<a href="{% url 'shop:category_list_all' category.category.slug %}">
-		ALL
-	</a>
-
+		{% include 'components/pagination.html' %}
+	{% else %}
+		<p>등록된 상품이 없습니다.</p>
+	{% endif %}
 {% endblock %}
