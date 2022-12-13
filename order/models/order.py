@@ -106,6 +106,7 @@ class Order(HistoryModel):
 		verbose_name=_('교환/반품')
 	)
 
+	# TODO: shipping_num으로 변경 하면 좋을듯
 	delivery_number = models.CharField(
 		max_length=15, 
 		blank=True, 
@@ -218,10 +219,19 @@ class Order(HistoryModel):
 	@named_property(_('영수증 링크'))
 	def receipt_link(self):
 		if self.is_paid and self.receipt_url:
-			blank = "'_blank'"
-			size = "'width=300, height=400'"
+			name = "'_target'"
+			specs = "'width=410, height=500'"
 			return mark_safe(
-				f'<a href="{self.receipt_url}" onclick="window.open({self.receipt_url}, {blank}, {size})">영수증</a>')
+				f'<a href={self.receipt_url} onclick="window.open(this.href, {name}, {specs}); return false;">영수증</a>')
+
+	def shipping_tracking_link(self):
+		# TODO: 우체국 택배 배송 조회 url로 되어져 있는데 settings로 옮기거나 택배사 url전 부 저장해두고 사용하는 택배사 url 가져오게 수성도 생각해면 좋은듯
+		# 택배사 배송 조회 관련 주소 모음 : https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=smartbiker&logNo=220261822007
+		if self.is_paid and self.delivery_number:
+			url = f'https://service.epost.go.kr/trace.RetrieveDomRigiTraceList.comm?sid1={self.delivery_number}'
+			return mark_safe(f'<a href="{url}">{self.delivery_number}</a>')
+		else:
+			return '-'
 
 	def is_card(self):
 		if self.pay_method == 'card':
