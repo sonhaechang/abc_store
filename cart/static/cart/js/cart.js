@@ -9,13 +9,9 @@ class Cart {
     }
 
     set_total_amount() {
-        let total_amount = 0;
-
-        document.querySelectorAll('.total-amount').forEach(e => {
-            total_amount += parseInt(e.getAttribute('value'));
-        });
+        const carts = document.querySelectorAll('.cart-table .cart');
         
-        if (total_amount === 0) {
+        if (carts.length === 0) {
             document.querySelector('.cart-table').remove();
             document.getElementById('cart-total-wrap').remove();
             document.getElementById('cart-content').innerHTML = '<p>장바구니에 담긴 상품이 없습니다.</p>';
@@ -27,10 +23,6 @@ class Cart {
         if (result) {
             location.href = this.cart_list_url;
         }
-    }
-
-    update_success() {
-        this.set_total_amount();
     }
 
     delete_success(target, message) {
