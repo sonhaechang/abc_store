@@ -35,7 +35,7 @@
 	<div value="{{ itme.id }}">
 		<p>총 결제금액</p>
 		<p>
-			<span class="total-amount" value="{{ item.total_amount }}">
+			<span id="total-amount" value="{{ item.total_amount }}">
 				{% if item.sale_amount %}
 					{{ item.sale_amount|intcomma }}
 				{% else %}
