@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView
 
 from core.mixins import PaginationsMixins
@@ -40,6 +40,18 @@ class OrderListView(LoginRequiredMixin, PaginationsMixins, ListView):
 
 		return context
 
+
+@login_required
+def order_detail(request: HttpRequest, merchant_uid:str) -> HttpResponse:
+	''' 사용자별 주문 상세 '''
+
+	order = get_object_or_404(Order, merchant_uid=merchant_uid)
+	total_quantity =  order.orderitem_order.count()
+
+	return render(request, 'order/container/order_detail.html', {
+		'order': order,
+		'total_quantity': total_quantity,
+	})
 
 @login_required
 def order_pay(request: HttpRequest) -> HttpResponse:

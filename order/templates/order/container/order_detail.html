@@ -1,0 +1,142 @@
+{% extends 'order/container/layout.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+    <h3>ORDER INFORMATION</h3>
+    <p>회원님의 주문내역을 상세 조회하실 수 있습니다.</p>
+
+    <p>주문상세내역</p>
+
+    <div>
+        <p>주문자정보</p>
+
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>주문번호</th>
+                    <td>{{ order.merchant_uid }}</td>
+                    <th>주문일자</th>
+                    <td>{{ order.created_at }}</td>
+                </tr>
+                <tr>
+                    <th>주문자</th>
+                    <td>
+                        {{ order.user.last_name }}
+                        {{ order.user.first_name }}
+                    </td>
+                    <th>처리상태</th>
+                    <td>{{ order.status_html }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div>
+        <p>배송지정보</p>
+
+        <table class="table">
+            <tbody>
+            <tr>
+                <th>송장번호</th>
+                <td>{{ order.shipping_tracking_link }}</td>
+                <th>주 소</th>
+                <td>
+                    {{ order.buyer_addr }}
+                    {{ order.detail_address }}
+                </td>
+            </tr>
+            <tr>
+                <th>수취인</th>
+                <td>{{ order.buyer_name }}</td>
+                <th>연락처</th>
+                <td>{{ order.buyer_tel }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-12 col-sm-12 mt-5">
+        <p>주문상품정보</p>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>이미지</th>
+                <th>상품명</th>
+                <th>수량</th>
+                <th>가격</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for item in order.orderitem_order.all %}
+                    <tr>
+                        <td class="item-img">
+                            {% if item.item.get_first_image %}
+                                <img src="{{ item.item.get_first_image.url }}" 
+                                    alt="{{ tem.item.name }}_image" 
+                                    style="width:50px; height:50px;">
+                            {% else %}
+                                <div class="bg-dark" style="width: 50px; height: 50px;"></div>
+                            {% endif %}
+                        </td>
+                        <td class="item-name">{{ item.item.name }}</td>
+                        <td class="item-quantity">{{ item.quantity }}</td>
+                        {% if item.item.sale_amount %}
+                            <td class="item-amount">{{ item.item.sale_amount|intcomma }} 원</td>
+                        {% else %}
+                            <td class="item-amount">{{ item.item.amount|intcomma }} 원</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <p>결제정보</p>
+        <table class="table">
+        <thead>
+            <tr>
+                <th>결제방법</th>
+                <th>결제금액</th>
+                <th>새부내역</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ order.get_pay_method_display }}</td>
+                <td>{{ order.amount|intcomma }} 원</td>
+                <td>
+                    {% if order.status == 'cancelled' %}
+                        결제취소
+                    {% else %}
+                        {{ order.receipt_link }}
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+
+    <div>
+        <p>결제취소</p>
+        <table class="table">
+          <tbody>
+            <tr>
+                <th>결제취소</th>
+                <td>
+                    {% if order.is_paid_ok %}
+                        <a href="#"
+                            id="cancel"
+                            data-message="결제취소 하시겠습니까?">
+                            결제취소
+                        </a>
+                    {% else %}
+                        <p>-</p>
+                    {% endif %}
+                </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+{% endblock %}
