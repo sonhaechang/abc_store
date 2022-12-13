@@ -10,18 +10,19 @@ class QuantitySelecter {
                     el = e.currentTarget.parentNode.children[1],
                     factor = parseInt(e.currentTarget.getAttribute('data-factor')),
                     amount = e.currentTarget.getAttribute('value');
-                const totalAmount = document.getElementById(`total-amount-${id}`)
-                const quantity = parseInt(el.innerHTML) + factor;
-                const total = amount * quantity;
-
-                totalAmount.innerHTML = this.comma(total);
-                totalAmount.setAttribute('value', total);
+                const totalAmount = document.getElementById(`total-amount-${id}`) ? 
+                    document.getElementById(`total-amount-${id}`) : document.getElementById(`total-amount`);
+                let quantity = parseInt(el.innerHTML) + factor;
 
                 if (quantity < 1 ) { quantity = 1; }
 				el.innerHTML = quantity;
 
+                const total = amount * quantity;
+                totalAmount.innerHTML = this.comma(total);
+                totalAmount.setAttribute('value', total);
+
                 if (is_update === true) {
-                    cart.update_quantity(id, quantity);
+                    cart.update_quantity(id, factor);
                 }
             })
         })

@@ -158,7 +158,7 @@ class CookieCart(object):
         cart_list = self.get_cookies()
 
         if cart_list:
-            cart_list[pk] = quantity
+            cart_list[pk] = int(cart_list[pk]) + int(quantity)
         else:
             cart_list = {pk: quantity}
 
@@ -174,19 +174,19 @@ class CookieCart(object):
 
         self.set_cookie(response, cart_list)
 
-def cart_update_or_create(request: HttpRequest, item: Model, cart_qs: QuerySet, quantity: int) -> None:
+def cart_update_or_create(request: HttpRequest, item: Model, cart_qs: QuerySet, quantity: str) -> None:
     ''' 장바구니에 상품이 있으면 생성 없으면 추가 '''
 
     if not cart_qs.exists():
         Cart.objects.create(
             user=request.user,
             item=item,
-            quantity=quantity)
+            quantity=int(quantity))
     else:
-        if int(quantity) >= 1:
-            cart_qs.update(quantity=F('quantity') + int(quantity))
-        else:
-            cart_qs.update(quantity=1)
+        for cart in cart_qs:
+            quantity = cart.quantity + int(quantity)
+            cart.quantity = 1 if int(quantity) < 1 else quantity
+            cart.save()
 
 def anonymous_user_cart_to_db_cart(request: HttpRequest, cart_list: dict[Any]) -> None:
     ''' 세션 기반 장바구니의 내역을 장바구니 db에 저장'''
