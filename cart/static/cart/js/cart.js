@@ -10,7 +10,6 @@ class Cart {
 
     set_total_amount() {
         let total_amount = 0;
-        const cart_total = document.getElementById('cart-total');
 
         document.querySelectorAll('.total-amount').forEach(e => {
             total_amount += parseInt(e.getAttribute('value'));
@@ -20,8 +19,6 @@ class Cart {
             document.querySelector('.cart-table').remove();
             document.getElementById('cart-total-wrap').remove();
             document.getElementById('cart-content').innerHTML = '<p>장바구니에 담긴 상품이 없습니다.</p>';
-        } else {
-            cart_total.innerText = this.comma(total_amount);
         }
     }
 
@@ -38,7 +35,7 @@ class Cart {
 
     delete_success(target, message) {
         alert(message);
-        document.getElementById(`item-${target.getAttribute('data-id')}`).remove();
+        document.getElementById(`cart-${target.getAttribute('data-id')}`).remove();
         this.set_total_amount();
     }
 
@@ -50,9 +47,7 @@ class Cart {
 	
 			if (success_type == 'create') {
                 this.create_success();
-            } else if (success_type == 'update') {
-                this.update_success();
-            } else {
+            } else if (success_type == 'delete') {
                 this.delete_success(delete_target, response.data.message);
             }
 		} catch(err) {

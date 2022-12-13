@@ -7,40 +7,56 @@
 
     <div id="cart-content">
         {% if cart_list %}
-            <table id="item-list" class="table cart-table">
+            <table id="cart-list" class="table cart-table">
                 <tbody>
-                    {% for item in cart_list %}
-                        <tr id="item-{{ item.item.pk }}" class="item" data-item-id="{{ item.item.pk }}">
+                    {% for cart in cart_list %}
+                        <tr id="cart-{{ cart.pk }}" 
+                            data-cart-id="{{ cart.pk }}"
+                            class="cart">
                             <td>
-                                <label for="{{ item.item.pk }}" class="checkbox-label">
-                                    <input type="checkbox" name="item-checkbox" data-id="{{ item.item.pk }}" class="item-checkbox">
+                                <label for="{{ cart.pk }}" 
+                                    class="checkbox-label">
+                                    <input data-id="{{ cart.pk }}" 
+                                        type="checkbox" 
+                                        name="cart-checkbox" 
+                                        class="cart-checkbox">
                                 </label>
                             </td>
                             <td>
-                                {% if item.item.get_first_image %}
-                                    <img src="{{ item.item.get_first_image.url }}" alt="{{ item.item.name }}-image" 
+                                {% if cart.item.get_first_image %}
+                                    <img src="{{ cart.item.get_first_image.url }}" alt="{{ cart.item.name }}-image" 
                                         style="width: 50px; height: 50px;">
                                 {% else %}
                                     <div class="bg-dark" style="width: 50px; height: 50px;"></div>
                                 {% endif %}
                             </td>
                             <td>
-                                <p>{{ item.item.name }}</p>
+                                <p>{{ cart.item.name }}</p>
                             </td>
-                            {% if item.item.is_public == True %}
+                            {% if cart.item.is_public == True %}
                                 <td>
-                                    {{ item.item.amount|intcomma }} 원
+                                    {{ cart.item.amount|intcomma }} 원
                                 </td>
                                 <td>
-                                    <button class="factor-btn" data-factor="-1" data-id="{{ item.item.pk }}"
-                                        value="{% if item.item.sale_amount %}{{ item.item.sale_amount }}{% else %}{{ item.item.amount }}{% endif %}">-</button>
-                                        <span class="quantity">{{ item.quantity }}</span>
-                                    <button class="factor-btn" data-factor="1" data-id="{{ item.item.pk }}"
-                                        value="{% if item.item.sale_amount %}{{ item.item.sale_amount }}{% else %}{{ item.item.amount }}{% endif %}">+</button>
+                                    <button class="factor-btn" 
+                                        data-factor="-1" 
+                                        data-id="{{ cart.item.pk }}"
+                                        value="{{ cart.item.amount }}">
+                                        -
+                                    </button>
+                                        <span class="quantity">{{ cart.quantity }}</span>
+                                    <button class="factor-btn" 
+                                        data-factor="1" 
+                                        data-id="{{ cart.item.pk }}"
+                                        value="{{ cart.item.amount }}">
+                                        +
+                                    </button>
                                 </td>
                                 <td>
-                                    <span id="total-amount-{{ item.item.pk }}" class="total-amount" value="{{ item.total_amount }}">
-                                        {{ item.total_amount|intcomma }}
+                                    <span id="total-amount-{{ cart.item.pk }}" 
+                                        class="total-amount" 
+                                        value="{{ cart.total_amount }}">
+                                        {{ cart.total_amount|intcomma }}
                                     </span>
                                     <span>원</span>
                                 </td>
@@ -48,9 +64,9 @@
                                 <td colspan="3">SOLD OUT</td>
                             {% endif %}
                             <td>
-                                <a href="{% url 'cart:delete_cart' item.item.pk %}" 
+                                <a href="{% url 'cart:delete_cart' cart.pk %}" 
                                     class="delete-cart"
-                                    data-id="{{ item.item.pk }}">
+                                    data-id="{{ cart.pk }}">
                                     삭제
                                 </a>
                             </td>
@@ -95,7 +111,7 @@
             ele.addEventListener('click', e => cart.delete_cart(e));
         });
 
-        order.select_items(document.getElementsByName("item-checkbox"));
+        order.select_items(document.getElementsByName("cart-checkbox"));
 
         if (order_btn) {
             order_btn.addEventListener('click', e => order.order_new(e));

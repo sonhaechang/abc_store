@@ -108,6 +108,7 @@ class CookieCart(object):
             amount = item.sale_amount if item.sale_amount else item.amount
 
             yield {
+                'pk': k,
                 'quantity': v,
                 'total_amount': int(amount) * int(v),
                 'item': {
