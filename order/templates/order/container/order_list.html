@@ -26,30 +26,35 @@
         </div>
     </div>
 
-    <table class="table table-borderless" id="order-list">
-        <thead>
-          <tr>
-              <th>주문일자</th>
-              <th>상품명</th>
-              <th>결제금액</th>
-              <th>처리상태</th>
-          </tr>
-        </thead>
-        <tbody>
-            {% if obj_list %}
+    {% if obj_list %}
+        <table class="table table-borderless" id="order-list">
+            <thead>
+            <tr>
+                <th>상품명</th>
+                <th>결제금액</th>
+                <th>처리상태</th>
+                <th>주문일자</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
                 {% for obj in obj_list %}
                     <tr>
-                        <td id="obj-list-time">{{ obj.created_at }}</td>
+                        
                         <td id="obj-list-name">{{ obj.name }}</td>
                         <td>{{ obj.amount|intcomma }}원</td>
                         <td>{{ obj.status_html }}</td>
+                        <td id="obj-list-time">{{ obj.created_at }}</td>
+                        <td>
+                            <a href="{% url 'order:order_detail' obj.merchant_uid %}">보기</a>
+                        </td>
                     </tr>
                 {% endfor %} 
+            </tbody>
+        </table>
 
-                {% include 'components/pagination.html' %}
-            {% else %}
-                <td colspan="4" class="text-center">주문 내역이 없습니다.</td>
-            {% endif %}
-        </tbody>
-    </table>
+        {% include 'components/pagination.html' %}
+    {% else %}
+        <p class="text-center">주문 내역이 없습니다.</p>
+    {% endif %}
 {% endblock %}
