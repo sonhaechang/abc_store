@@ -1,12 +1,22 @@
-from typing import Any, Dict
+import json
+
+from typing import Any, Dict, Union
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
-from django.http import HttpResponse, HttpRequest
+from django.http import (
+	HttpResponse, HttpRequest, HttpResponseRedirect, 
+	JsonResponse,
+)
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.views.generic import ListView
+
+from rest_framework import status
+
+from cart.models import Cart
 
 from core.mixins import PaginationsMixins
 
@@ -16,6 +26,8 @@ from order.models import Order, OrderItem
 from order.services import OrderInfo, OrderItemHandler
 
 from shop.models import Item
+
+RedirectOrResponse = Union[HttpResponseRedirect, HttpResponse]
 
 
 # Create your views here.
@@ -54,9 +66,29 @@ def order_detail(request: HttpRequest, merchant_uid:str) -> HttpResponse:
 	})
 
 @login_required
-def order_pay(request: HttpRequest) -> HttpResponse:
-	item_qs = Item.objects.filter(id__in=request.GET.keys())
-	quantity_dict = { int(k): int(v) for k, v in request.GET.dict().items() }
+def order_item_save_in_session(request: HttpRequest) -> JsonResponse:
+	''' 장바구니에 저장된 주문할 상품 세션에 저장 '''
+
+	if request.session.get('order_items'):
+		request.session['order_items'] = None
+
+	if request.method == 'POST':
+		cart_qs = Cart.objects.filter(id__in=json.loads(request.POST.get('cart_ids')))
+		item_qs = dict()
+		for cart in cart_qs:
+			item_qs[cart.item.id] = cart.quantity
+		request.session['order_items'] = item_qs
+
+		return JsonResponse(
+			data={'redirect_url': reverse('order:order_pay')}, status=status.HTTP_200_OK)
+	else:
+		return JsonResponse(
+			data={'error': 'Method Not Allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@login_required
+def order_pay(request: HttpRequest) -> RedirectOrResponse:
+	item_qs = Item.objects.filter(id__in=request.session['order_items'].keys())
+	quantity_dict = { int(k): int(v) for k, v in request.session['order_items'].items() }
 
 	order_items = list()
 	for item in item_qs:
@@ -79,6 +111,8 @@ def order_pay(request: HttpRequest) -> HttpResponse:
 			order_item_handler = OrderItemHandler(order)
 			order_item_handler.create_order_items(order_items)
 			order_item_handler.stock_minus_counter()
+
+			del request.session['order_items']
 
 			return redirect('order:order_complete', str(order.merchant_uid))
 	else:

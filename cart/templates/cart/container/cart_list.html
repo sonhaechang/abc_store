@@ -53,7 +53,7 @@
                                     </button>
                                 </td>
                                 <td>
-                                    <span id="total-amount-{{ cart.item.pk }}" 
+                                    <span id="total-amount-{{ cart.pk }}" 
                                         class="total-amount" 
                                         value="{{ cart.total_amount }}">
                                         {{ cart.total_amount|intcomma }}
@@ -80,7 +80,7 @@
                 <h3>
                     <span id="cart-total" value="0">0</span> 원
                 </h3>
-                <a href="{% url 'order:order_pay' %}" 
+                <a href="{% url 'order:order_item_save_in_session' %}" 
                     id="order-btn">
                     주문하기
                 </a>
