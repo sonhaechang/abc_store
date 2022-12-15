@@ -5,6 +5,7 @@ from typing import Any, Dict, Union
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.sites.shortcuts import get_current_url
 from django.db.models import QuerySet
 from django.http import (
 	HttpResponse, HttpRequest, HttpResponseRedirect, 
@@ -99,6 +100,8 @@ def order_pay(request: HttpRequest) -> RedirectOrResponse:
 	order_info = OrderInfo(request, order_items)
 	instance = order_info.get_instance()
 
+	m_redirect_url = f'{get_current_url(request).domain}{reverse("order:order_complete_mobile")}'
+
 	if request.method == 'POST':
 		form = OrderForm(request.POST, instance=instance)
 		if form.is_valid():
@@ -118,13 +121,12 @@ def order_pay(request: HttpRequest) -> RedirectOrResponse:
 	else:
 		form = OrderForm(instance=instance)
 
-	data = {
+	return render(request, 'order/container/order_pay.html', {
 		'form': form,
 		'order_items': order_items,
-		'iamport_shop_id': settings.IAMPORT_SHOP_ID
-	}
-
-	return render(request, 'order/container/order_pay.html', data)
+		'iamport_shop_id': settings.IAMPORT_SHOP_ID,
+		'm_redirect_url': m_redirect_url
+	})
 
 @login_required
 def order_complete(request: HttpRequest, merchant_uid: str) -> HttpResponse:

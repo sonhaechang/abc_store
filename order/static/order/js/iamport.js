@@ -9,6 +9,7 @@ document.getElementById('order-pay').addEventListener('submit', e => {
 
 	params['name'] = document.getElementById('imp-js').getAttribute('order-name');
 	params['amount'] = document.getElementById('total-amount').getAttribute('data-value');
+	params['m_redirect_url'] = document.getElementById('imp-js').getAttribute('m-redirect-url');
 	delete params['imp_uid'];
 	delete params['detail_addr'];
 

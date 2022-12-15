@@ -68,5 +68,7 @@
 	<script src="//cdn.iamport.kr/js/iamport.payment-1.1.5.js"></script>
 	<script src="{% static 'js/post_code.js' %}"></script>
 	<script src="{% static 'order/js/iamport.js' %}" id="imp-js"
-		imp-id="{{ iamport_shop_id }}" order-name="{{ form.instance.name }}"></script>
+		imp-id="{{ iamport_shop_id }}" 
+		order-name="{{ form.instance.name }}"
+		m-redirect-url="{{ m_redirect_url }}"></script>
 {% endblock %}
