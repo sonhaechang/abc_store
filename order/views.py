@@ -88,17 +88,8 @@ def order_item_save_in_session(request: HttpRequest) -> JsonResponse:
 
 @login_required
 def order_pay(request: HttpRequest) -> RedirectOrResponse:
-	item_qs = Item.objects.filter(id__in=request.session['order_items'].keys())
-	quantity_dict = { int(k): int(v) for k, v in request.session['order_items'].items() }
-
-	order_items = list()
-	for item in item_qs:
-		quantity = quantity_dict[item.pk]
-		order_item = OrderItem(quantity=quantity, item=item)
-		order_items.append(order_item)
-
-	order_info = OrderInfo(request, order_items)
-	instance = order_info.get_instance()
+	order_info = OrderInfo(request)
+	order_items, instance = order_info.get_instance()
 
 	m_redirect_url = f'{get_current_site(request).domain}{reverse("order:order_complete_mobile")}'
 
@@ -144,17 +135,8 @@ def order_complete_mobile(request: HttpRequest) -> HttpResponseRedirect:
 	merchant_uid = request.GET.get('merchant_uid')
 	imp_success = request.GET.get('imp_success')
 
-	item_qs = Item.objects.filter(id__in=request.session['order_items'].keys())
-	quantity_dict = { int(k): int(v) for k, v in request.session['order_items'].items() }
-
-	order_items = list()
-	for item in item_qs:
-		quantity = quantity_dict[item.pk]
-		order_item = OrderItem(quantity=quantity, item=item)
-		order_items.append(order_item)
-
-	order_info = OrderInfo(request, order_items)
-	order = order_info.get_instance()
+	order_info = OrderInfo(request)
+	order_items, order = order_info.get_instance()
 
 	if imp_success == 'true':
 		order.user=request.user

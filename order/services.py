@@ -5,26 +5,35 @@ from django.http import HttpRequest
 
 from order.models import Order, OrderItem
 
+from shop.models import Item
+
 
 class OrderInfo:
 	''' 주문정보 생성하는 class '''
 
-	def __init__(self, request: HttpRequest, order_items: list[Model]) -> None:
+	def __init__(self, request: HttpRequest) -> None:
 		self.request = request
-		self.order_items = order_items
-		self.amount = sum(order_item.amount for order_item in order_items)
 
 	def get_instance(self) -> Model:
 		''' create order instance '''
 
+		item_qs = Item.objects.filter(id__in=self.request.session['order_items'].keys())
+		quantity_dict = { int(k): int(v) for k, v in self.request.session['order_items'].items() }
+
+		order_items = list()
+		for item in item_qs:
+			quantity = quantity_dict[item.pk]
+			order_item = OrderItem(quantity=quantity, item=item)
+			order_items.append(order_item)
+
 		user = self.request.user
-		item = self.order_items[0]
-		name = f'{item.item.name} 외 {len(self.order_items) - 1}건' \
-			if len(self.order_items) > 1 else item.item.name
+		item = order_items[0]
+		name = f'{item.item.name} 외 {len(order_items) - 1}건' \
+			if len(order_items) > 1 else item.item.name
 
 		instance = Order(
 			name=name, 
-			amount=self.amount,
+			amount=sum(order_item.amount for order_item in order_items),
 			buyer_name= f'{user.last_name}{user.first_name}',
 			merchant_uid=uuid4,
 			buyer_postcode=user.postal_code,
@@ -34,7 +43,7 @@ class OrderInfo:
 			buyer_tel=user.phone,
 		)
 
-		return instance
+		return order_items, instance
 
 
 class OrderItemHandler:
