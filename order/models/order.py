@@ -272,6 +272,17 @@ class Order(HistoryModel):
 			if self.status != 'exchange_return' and self.status != 'shipping_ready' \
 				and self.status != 'shipping' and self.status != 'shipping_complete':
 				self.status = val['status']
+			
+			# pc가 아닌 모바일이나 테블릿을 결제시 아래의 정보 저장
+			if val['channel'] != 'PC':
+				address = val['buyer_addr'].split(',')
+				self.buyer_addr = address[0]
+				self.detail_addr = address[1][1:]
+				self.buyer_postcode = val['buyer_postcode']
+				self.buyer_name = val['buyer_name']
+				self.buyer_email = val['buyer_email']
+				self.buyer_tel = val['buyer_tel']
+
 			self.pay_method = val['pay_method']
 		if commit:
 			self.save()
