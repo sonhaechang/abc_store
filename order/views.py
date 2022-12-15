@@ -5,7 +5,7 @@ from typing import Any, Dict, Union
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.sites.shortcuts import get_current_url
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import QuerySet
 from django.http import (
 	HttpResponse, HttpRequest, HttpResponseRedirect, 
@@ -100,7 +100,7 @@ def order_pay(request: HttpRequest) -> RedirectOrResponse:
 	order_info = OrderInfo(request, order_items)
 	instance = order_info.get_instance()
 
-	m_redirect_url = f'{get_current_url(request).domain}{reverse("order:order_complete_mobile")}'
+	m_redirect_url = f'{get_current_site(request).domain}{reverse("order:order_complete_mobile")}'
 
 	if request.method == 'POST':
 		form = OrderForm(request.POST, instance=instance)
