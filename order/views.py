@@ -98,7 +98,7 @@ def order_pay(request: HttpRequest) -> RedirectOrResponse:
 
 	order_info = OrderInfo(request, order_items)
 	instance = order_info.get_instance()
-	
+
 	if request.method == 'POST':
 		form = OrderForm(request.POST, instance=instance)
 		if form.is_valid():
@@ -133,3 +133,37 @@ def order_complete(request: HttpRequest, merchant_uid: str) -> HttpResponse:
 	return render(request, 'order/container/order_complete.html', {
 		'order': order,
 	})
+
+@login_required
+def order_complete_mobile(request: HttpRequest) -> HttpResponseRedirect:
+	''' 모바일로 결제시 iamport에서 처리 결과를 받아 db에 저장 '''
+
+	imp_uid = request.GET.get('imp_uid')
+	merchant_uid = request.GET.get('merchant_uid')
+	imp_success = request.GET.get('imp_success')
+
+	item_qs = Item.objects.filter(id__in=request.session['order_items'].keys())
+	quantity_dict = { int(k): int(v) for k, v in request.session['order_items'].items() }
+
+	order_items = list()
+	for item in item_qs:
+		quantity = quantity_dict[item.pk]
+		order_item = OrderItem(quantity=quantity, item=item)
+		order_items.append(order_item)
+
+	order_info = OrderInfo(request, order_items)
+	order = order_info.get_instance()
+
+	if imp_success == 'true':
+		order.user=request.user
+		order.merchant_uid=merchant_uid
+		order.imp_uid=imp_uid
+		order.save()
+		order.update()
+
+		order_item_handler = OrderItemHandler(order)
+		order_item_handler.create_order_items(order_items)
+		order_item_handler.stock_minus_counter()
+
+		del request.session['order_items']
+	return redirect('order:order_complete', str(order.merchant_uid))
