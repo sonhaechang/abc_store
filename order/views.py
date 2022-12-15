@@ -23,10 +23,8 @@ from core.mixins import PaginationsMixins
 
 from order.enums import OrderStautsEnum
 from order.forms import OrderForm
-from order.models import Order, OrderItem
+from order.models import Order
 from order.services import OrderInfo, OrderItemHandler
-
-from shop.models import Item
 
 RedirectOrResponse = Union[HttpResponseRedirect, HttpResponse]
 
