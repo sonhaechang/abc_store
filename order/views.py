@@ -57,7 +57,7 @@ class OrderListView(LoginRequiredMixin, PaginationsMixins, ListView):
 def order_detail(request: HttpRequest, merchant_uid:str) -> HttpResponse:
 	''' 사용자별 주문 상세 '''
 
-	order = get_object_or_404(Order, merchant_uid=merchant_uid)
+	order = get_object_or_404(Order, user=request.user, merchant_uid=merchant_uid)
 	total_quantity =  order.orderitem_order.count()
 
 	return render(request, 'order/container/order_detail.html', {
@@ -124,7 +124,7 @@ def order_pay(request: HttpRequest) -> RedirectOrResponse:
 
 @login_required
 def order_complete(request: HttpRequest, merchant_uid: str) -> HttpResponse:
-	order = Order.objects.get_or_none(merchant_uid=merchant_uid)
+	order = get_object_or_404(Order, user=request.user, merchant_uid=merchant_uid)
 
 	return render(request, 'order/container/order_complete.html', {
 		'order': order,
