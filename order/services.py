@@ -1,7 +1,12 @@
+from datetime import datetime 
+
+import openpyxl
+
 from uuid import uuid4
 
-from django.db.models import Model
-from django.http import HttpRequest
+from django.db.models import Model, QuerySet
+from django.http import HttpRequest, HttpResponse
+from django.utils.translation import gettext_lazy as _
 
 from order.models import Order, OrderItem
 
@@ -95,3 +100,60 @@ class OrderItemHandler:
 			if item.stock > 0:
 				item.is_public = True
 			item.save()
+
+def export_excel(queryset: QuerySet) -> HttpResponse:
+	''' 주문정보 엑셀로 다운로드 '''
+
+	#TODO: 데이터 양이 많아지면 처리하는 시간이 많이 소요될것이라 celery나 asgi를 할용해서 비동기 처리가 필요할 것으로 생각됨 
+	today = datetime.today().strftime('%Y%m%d')
+
+	response = HttpResponse(content_type='application/ms-excel')
+	response['Content-Disposition'] = f'attachment; filename="order_{today}.xlsx"'
+
+	wb = openpyxl.Workbook()
+	sheet = wb.active
+	sheet.title = 'Order List'
+
+	row_num = 1
+
+	base_columns = {
+		'id': _('id'),
+		'user__username': _('구매자'),
+		'merchant_uid': _('주문번호'),
+		'imp_uid': _('아임포트_거래고유번호'),
+		'name': _('상품명'),
+		'amount': _('결제금액'),
+		'delivery_amount': _('배송비'),
+		'buyer_name': _('이름'),
+		'buyer_postcode': _('우편번호'),
+		'buyer_addr': _('주소'),
+		'detail_addr': _('상세주소'),
+		'buyer_email': _('이메일'),
+		'buyer_tel': _('전화번호'),
+		'exchange_return': _('교환/반품'),
+		'delivery_number': _('등기번호'),
+		'status': _('처리상태'),
+		'pay_method': _('결제수단'),
+		'vbank_num': _('가상계좌')
+	}
+
+	order_items_columns = {'order_items':  _('주문상품')}
+	columns = dict(base_columns, **order_items_columns)
+
+	for idx, col in enumerate(list(columns.keys()), start=1):
+		sheet.cell(row=row_num, column=idx).value = str(columns[col])
+
+	rows = queryset.values_list(*(list(base_columns.keys())))
+
+	for row in rows:
+		order_items = OrderItem.objects.filter(order__id=row[0]).values_list('item__name', 'quantity', 'status',)
+		order_item = ','.join(map(str, order_items))
+		row_num += 1
+
+		for col_num in range(len(row)):
+			sheet.cell(row=row_num, column=col_num+1).value = str(row[col_num])
+
+		sheet.cell(row=row_num, column=len(row)+1).value = str(order_item)
+
+	wb.save(response)
+	return response

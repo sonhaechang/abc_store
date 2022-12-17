@@ -3,9 +3,8 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-# from order.excel_download import excel_download
 from order.models import Order, OrderItem
-from order.services import OrderItemHandler
+from order.services import OrderItemHandler, export_excel
 
 
 # Register your models here.
@@ -29,7 +28,7 @@ class OrderAdmin(admin.ModelAdmin):
 	list_display = ['merchant_uid', 'username', 'name', 'amount_html', 'status_html', 'created_at']
 	# list_display_links = ['user']
 	raw_id_fields = ['user']
-	actions = ['do_update', 'do_cancel']
+	actions = ['do_update', 'do_cancel', 'do_export_excel']
 	list_filter = ['created_at', 'status']
 	search_fields = ['imp_uid', 'user__username', 'name']
 	inlines = [OrderItemInline]
@@ -58,7 +57,6 @@ class OrderAdmin(admin.ModelAdmin):
 			self.message_user(request, '갱신할 주문이 없습니다.')
 	do_update.short_description = '선택된 주문들의 아임포트 정보 갱신하기'
 
-
 	def do_cancel(self, request, queryset):
 		'선택된 주문에 대해 결제취소요청을 합니다.'
 		queryset = queryset.filter(status='paid')
@@ -73,3 +71,17 @@ class OrderAdmin(admin.ModelAdmin):
 		else:
 			self.message_user(request, '취소할 주문이 없습니다.')
 	do_cancel.short_description = '선택된 주문에 대해 결제취소'
+
+	def do_export_excel(self, request, queryset):
+		'선택된 주문에 대해 엑셀로 다운로드를 합니다.'
+		try:
+			total = queryset.count()
+			if total > 0:
+				response = export_excel(queryset)
+				self.message_user(request, f'{total} 건의 주문을 엑셀로 다운로드했습니다.')
+				return response
+			else:
+				self.message_user(request, '취소할 주문이 없습니다.')
+		except Exception as e:
+			self.message_user(request, f'엑셀 다운로드에 실패 했습니다. 다시 시도해주세요.')
+	do_export_excel.short_description = '선택된 주문에 대해 엑셀로 다운로드'
