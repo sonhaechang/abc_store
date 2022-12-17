@@ -126,9 +126,9 @@
                 <th>결제취소</th>
                 <td>
                     {% if order.is_paid_ok %}
-                        <a href="#"
-                            id="cancel"
-                            data-message="결제취소 하시겠습니까?">
+                        <a href="{% url 'order:order_cancel' order.merchant_uid %}"
+                            id="cancel-btn"
+                            onclick="return confirm('결제취소 하시겠습니까?');">
                             결제취소
                         </a>
                     {% else %}

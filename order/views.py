@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import (
 	HttpResponse, HttpRequest, HttpResponseRedirect, 
@@ -79,10 +80,14 @@ def order_item_save_in_session(request: HttpRequest) -> JsonResponse:
 		request.session['order_items'] = item_qs
 
 		return JsonResponse(
-			data={'redirect_url': reverse('order:order_pay')}, status=status.HTTP_200_OK)
+			data={'redirect_url': reverse('order:order_pay')}, 
+			status=status.HTTP_200_OK
+		)
 	else:
 		return JsonResponse(
-			data={'error': 'Method Not Allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+			data={'error': 'Method Not Allowed'}, 
+			status=status.HTTP_405_METHOD_NOT_ALLOWED
+		)
 
 @login_required
 def order_pay(request: HttpRequest) -> RedirectOrResponse:
@@ -149,3 +154,19 @@ def order_complete_mobile(request: HttpRequest) -> HttpResponseRedirect:
 
 		del request.session['order_items']
 	return redirect('order:order_complete', str(order.merchant_uid))
+
+@login_required
+def order_cancel(request: HttpRequest, merchant_uid: str) -> HttpResponseRedirect:
+	''' 주문 취소 '''
+
+	# TODO: redirect가 아닌 JsonResponse로 수정하는 방법도 고려해볼법함  
+	order = get_object_or_404(Order, user=request.user, merchant_uid=merchant_uid)
+
+	if order.user == request.user:
+		order.cancel()
+		order_item_handler = OrderItemHandler(order)
+		order_item_handler.set_cancel_status()
+		order_item_handler.stock_plus_counter()
+		return redirect('order:order_detail', order.merchant_uid)
+	else:
+		raise PermissionDenied

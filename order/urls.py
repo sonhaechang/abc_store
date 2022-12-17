@@ -8,5 +8,6 @@ urlpatterns = [
 	path('save/session/', views.order_item_save_in_session, name='order_item_save_in_session'),
 	path('complete/mobile/', views.order_complete_mobile, name='order_complete_mobile'),
 	path('complete/<str:merchant_uid>/', views.order_complete, name='order_complete'),
+	path('cancel/<str:merchant_uid>/', views.order_cancel, name='order_cancel'),
 	path('detail/<str:merchant_uid>/', views.order_detail, name='order_detail'),
 ]
