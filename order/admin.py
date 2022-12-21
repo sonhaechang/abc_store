@@ -1,10 +1,17 @@
+import openpyxl
 
 from django.contrib import admin
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.urls import path
 
 from order.models import Order, OrderItem
-from order.services import OrderItemHandler, export_excel
+from order.services import (
+	OrderItemHandler, 
+	export_excel, import_excel
+)
 
 
 # Register your models here.
@@ -21,6 +28,7 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+	change_list_template = 'admin/container/order_change_list.html'
 	fields = ['user', 'merchant_uid', 'imp_uid', 'name', 'amount', 'delivery_amount', 'delivery_number', 
 		'status', 'meta', 'buyer_name', 'buyer_postcode', 'buyer_addr', 'detail_addr', 'buyer_email', 
 		'buyer_tel', 'exchange_return', 'vbank_num', 'created_at']
@@ -85,3 +93,30 @@ class OrderAdmin(admin.ModelAdmin):
 		except Exception as e:
 			self.message_user(request, f'엑셀 다운로드에 실패 했습니다. 다시 시도해주세요.')
 	do_export_excel.short_description = '선택된 주문에 대해 엑셀로 다운로드'
+
+	def get_urls(self):
+		''' custom admin urls '''
+
+		urls = super().get_urls()
+		order_urls = [
+			path('import/excel/shipping-num/', 
+				self.admin_site.admin_view(self.shipping_number_update_to_excel), 
+				name="shipping_number_update_to_excel")
+		]
+		return order_urls + urls
+
+	def shipping_number_update_to_excel(self, request):
+		''' 입력받은 등기번호 엑셀파일 불러와서 등기번호 업데이트 '''
+
+		if request.method == 'POST':
+			import_excel(request.FILES['upload_file'].file)
+			
+			return redirect(
+				f'admin:{self.model._meta.app_label}_{self.model._meta.model_name}_changelist')
+
+		context = dict(
+			self.admin_site.each_context(request),
+			opts=self.model._meta
+		)
+
+		return TemplateResponse(request, 'admin/container/shipping_number_update_to_excel.html', context)

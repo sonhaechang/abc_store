@@ -157,3 +157,23 @@ def export_excel(queryset: QuerySet) -> HttpResponse:
 
 	wb.save(response)
 	return response
+
+def import_excel(file_name):
+	''' 등기번호 엑셀에서 불러오기(업데이트) '''
+
+	wb = openpyxl.load_workbook(filename=file_name)
+	sheet = wb.active
+	max_row = sheet.max_row
+
+	order_bulk_update_list = list()
+
+	for i in range(2, max_row):
+		order = Order.objects.get_or_none(pk=sheet.cell(row=i, column=1).value)
+
+		if order is not None:
+			value = sheet.cell(row=i, column=15).value if sheet.cell(row=i, column=15).value is not None else ''
+			order.delivery_number = value
+
+		order_bulk_update_list.append(order)
+
+	Order.objects.bulk_update(order_bulk_update_list, ['delivery_number'])
