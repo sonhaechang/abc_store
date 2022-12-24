@@ -79,7 +79,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
-    raw_id_fields = ['category', 'option']
+    raw_id_fields = ['category']
     list_display = ['id', 'category', 'name', 'is_public']
     list_display_links = ['id', 'name']
     list_filter = ['category']
@@ -91,7 +91,8 @@ class ItemAdmin(admin.ModelAdmin):
 
 @admin.register(ItemOption)
 class ItemOptionAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields = ['item']
+    list_display = ['id', 'name', 'value']
 
 
 @admin.register(Review)
