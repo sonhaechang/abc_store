@@ -42,16 +42,16 @@ class Item(HistoryModel):
 		verbose_name=_('설명')
 	)
 
-	supply_price = models.PositiveIntegerField(
+	supply_amount = models.PositiveSmallIntegerField(
 		verbose_name=_('공급가액'),
 		default=0
 	)
 
-	amount = models.PositiveIntegerField(
+	amount = models.PositiveSmallIntegerField(
 		verbose_name=_('금액')
 	)
 
-	tax = models.PositiveIntegerField(
+	tax = models.PositiveSmallIntegerField(
 		verbose_name=_('세금'),
 		default=0
 	)
@@ -64,14 +64,14 @@ class Item(HistoryModel):
 		verbose_name=_('할인율')
 	)
 
-	sale_amount = models.PositiveIntegerField(
+	sale_amount = models.PositiveSmallIntegerField(
 		blank=True, 
 		null=True, 
 		verbose_name=_('할인가')
 	)
 
 	#TODO: 추후 삭제 필요
-	stock = models.PositiveIntegerField(
+	stock = models.PositiveSmallIntegerField(
 		verbose_name=_('수량')
 	)
 
@@ -91,15 +91,6 @@ class Item(HistoryModel):
 		default=False, 
 		db_index=True,
 		verbose_name=_('베스트 아이템')
-	)
-
-	option = models.ManyToManyField(
-		to='shop.ItemOption',
-		related_name='%(class)s_option',
-		#TODO: 추후 삭제 필요 (blank, null)
-        blank=True,
-		null=True,
-		verbose_name=_('상품 옵션'),
 	)
 
 	class Meta:
@@ -122,6 +113,13 @@ class Item(HistoryModel):
 
 
 class ItemOption(HistoryModel):
+	item = models.ForeignKey(
+		to='shop.Item', 
+		on_delete=models.CASCADE,
+		related_name='%(class)s_item',
+		verbose_name=_('상품')
+	)
+	
 	name = models.CharField(
 		max_length=100,
 		verbose_name = _('옵션명')
@@ -153,17 +151,17 @@ class ItemReal(HistoryModel):
 	)
 
 	quantity = models.PositiveSmallIntegerField(
-		#TODO: default 0 추가 필요
+		default=0,
 		verbose_name=_('수량')
 	)
 
 	safe_quantity = models.PositiveSmallIntegerField(
-		#TODO: default 0 추가 필요
+		default=0,
 		verbose_name=_('안전 수량')
 	)
 
 	extra_amount = models.PositiveSmallIntegerField(
-		#TODO: default 0 추가 필요
+		default=0,
 		verbose_name=_('추가 금액')
 	)
 
