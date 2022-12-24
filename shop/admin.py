@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
 
-from shop.models import Category, Item, ItemImage, Review
+from shop.models import Category, Item, ItemOption, ItemReal, ItemImage, Review
 
 # Register your models here.
 class ReviewDateCreatedFilter(admin.SimpleListFilter):
@@ -53,13 +53,19 @@ class CategoryFilter(admin.SimpleListFilter):
 class ItemImageInline(admin.StackedInline):
     model = ItemImage
     raw_id_fields = ['item']
-    extra = 1
+    extra = 0
 
 
 class ReviewInline(admin.StackedInline):
 	model = Review
 	raw_id_fields = ['item']
-	extra = 1
+	extra = 0
+
+
+class ItemRealInline(admin.StackedInline):
+    model = ItemReal
+    raw_id_fields = ['item'] 
+    extra = 0
 
 
 @admin.register(Category)
@@ -73,13 +79,19 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
-	list_display = ['id', 'category', 'name', 'stock', 'is_public']
-	list_display_links = ['id', 'name']
-	list_filter = ['category']
-	list_editable = ['is_public', 'stock']
-	search_fields = ['name']
-	inlines = [ItemImageInline, ReviewInline]
-	prepopulated_fields = {'slug':('name',)}
+    raw_id_fields = ['category', 'option']
+    list_display = ['id', 'category', 'name', 'is_public']
+    list_display_links = ['id', 'name']
+    list_filter = ['category']
+    list_editable = ['is_public']
+    search_fields = ['name']
+    inlines = [ItemRealInline, ItemImageInline]
+    prepopulated_fields = {'slug':('name',)}
+
+
+@admin.register(ItemOption)
+class ItemOptionAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Review)
