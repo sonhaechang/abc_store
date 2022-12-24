@@ -70,6 +70,7 @@ class Item(HistoryModel):
 		verbose_name=_('할인가')
 	)
 
+	#TODO: 추후 삭제 필요
 	stock = models.PositiveIntegerField(
 		verbose_name=_('수량')
 	)
@@ -92,6 +93,15 @@ class Item(HistoryModel):
 		verbose_name=_('베스트 아이템')
 	)
 
+	option = models.ManyToManyField(
+		to='shop.ItemOption',
+		related_name='%(class)s_option',
+		#TODO: 추후 삭제 필요 (blank, null)
+        blank=True,
+		null=True,
+		verbose_name=_('상품 옵션'),
+	)
+
 	class Meta:
 		ordering = ['-id']
 		db_table = 'item_tb'
@@ -109,6 +119,65 @@ class Item(HistoryModel):
 			'shop:item_detail', 
 			args=[self.category.category.slug, self.category.slug, self.slug]
 		)
+
+
+class ItemOption(HistoryModel):
+	name = models.CharField(
+		max_length=100,
+		verbose_name = _('옵션명')
+	)
+
+	value = models.CharField(
+		max_length=100,
+		verbose_name = _('옵션값')
+	)
+
+	class Meta:
+		ordering = ['id']
+		db_table = 'item_option_tb'
+		verbose_name = _('상품 옵션')
+		verbose_name_plural = _('상품 옵션')
+
+
+class ItemReal(HistoryModel):
+	item = models.ForeignKey(
+		to='shop.Item', 
+		on_delete=models.CASCADE,
+		related_name='%(class)s_item',
+		verbose_name=_('상품')
+	)
+
+	name = models.CharField(
+		max_length=100,
+		verbose_name=_('옵션명')	
+	)
+
+	quantity = models.PositiveSmallIntegerField(
+		#TODO: default 0 추가 필요
+		verbose_name=_('수량')
+	)
+
+	safe_quantity = models.PositiveSmallIntegerField(
+		#TODO: default 0 추가 필요
+		verbose_name=_('안전 수량')
+	)
+
+	extra_amount = models.PositiveSmallIntegerField(
+		#TODO: default 0 추가 필요
+		verbose_name=_('추가 금액')
+	)
+
+	is_public = models.BooleanField(
+		default=False, 
+		db_index=True,
+		verbose_name=_('판매 가능 여부')
+	)
+
+	class Meta:
+		ordering = ['id']
+		db_table = 'item_real_tb'
+		verbose_name = _('상품 실물')
+		verbose_name_plural = _('상품 실물')
 
 
 class ItemImage(HistoryModel):
