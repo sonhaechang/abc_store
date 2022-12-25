@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from dateutil.relativedelta import relativedelta
 
 from shop.models import Category, Item, ItemOption, ItemReal, ItemImage, Review
+from shop.forms import AdminItemForm
 
 # Register your models here.
 class ReviewDateCreatedFilter(admin.SimpleListFilter):
@@ -79,6 +80,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
+    form = AdminItemForm
     raw_id_fields = ['category']
     list_display = ['id', 'category', 'name', 'is_public']
     list_display_links = ['id', 'name']

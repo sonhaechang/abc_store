@@ -1,0 +1,169 @@
+{% include "django/forms/widgets/input.html" %}
+
+<style>
+    .option-badge {
+        display: inline-flex;
+        padding: 0.35em 0.65em;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+        align-self: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        background-color: #264b5d;
+    }
+
+    .option-badge-text {
+        align-self: center;
+        margin-right: 5px;
+    }
+</style>
+
+<div class="inline-group">
+    <fieldset class="module ">
+        <h2>옵션 추가하기</h2>
+
+        <div class="options-input-block">
+            <div class="inline-related">
+                <h3>
+                    <b>옵션 품목:</b>
+                    <span class="inline_label">#1</span>
+                    <a href="#" 
+                        class="inline-deletelink" 
+                        onclick="optionInputDelete(event)">
+                        삭제하기
+                    </a>
+                </h3>
+
+                <fieldset class="module aligned ">
+                    <div style="display: flex;">
+                        <div class="form-row" style="flex-grow: 0;">
+                            <input type="text" 
+                                class="class_option_name" 
+                                placeholder="옵션력 입력" 
+                                onkeydown="optionName(event)">
+                        </div>
+                        <div class="form-row" style="flex-grow: 2;">
+                            <input type="text" 
+                                class="class_option_value" 
+                                placeholder="옵션값 입력 - 엔터"
+                                style="width: 99.5%;" 
+                                onkeydown="optionValue(event)">
+                        </div>
+                    </div>
+                    <div class="form-row option-result">
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="add-row">
+            <a href="#">옵션 추가하기</a>
+        </div>
+
+        <div class="submit-row" style="margin: 20px 0 0 !important;">
+            <input type="button" value="모든 옵션 품목 추가" class="default">
+        </div>
+    </fieldset>
+</div>
+
+<script>
+    let optionsInlineLabelCount = 1;
+    document.querySelector('.field-options label').remove();
+
+    function optionBadgeDelete(e) {
+        e.preventDefault();
+        e.currentTarget.parentNode.remove();
+    }
+
+    function optionInputDelete (e) {
+        e.preventDefault();
+        e.currentTarget.parentNode.parentNode.remove();
+        optionsInlineLabelCount = optionsInlineLabelCount - 1; 
+    }
+
+    function optionName(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+        }  
+    }
+
+    function optionValue(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            let value = e.target.value;
+            const nameValue = e.target.parentNode.previousElementSibling.children[0].value; 
+
+            if (nameValue === '') {
+                alert('옵션명을 입력해주세요.');
+                return false; 
+            }  
+
+            if (value === '') {
+                alert('옵션값을 입력해주세요.');
+                return false;
+            } 
+
+            e.target.parentNode.parentNode.parentNode.querySelector('.option-result').insertAdjacentHTML(
+                'beforeend', makeOptionBadge(value));
+            e.target.value = '';
+        }
+    }
+
+    function makeOptionBadge(data) {
+        return `
+            <span class="option-badge">
+                <span class="option-badge-text">${data}</span>
+                <a href="#"
+                    class="inline-deletelink option-badge-delete"
+                    onclick="optionBadgeDelete(event)">
+                    삭제하기
+                </a>
+            </span>
+        `
+    }
+
+    function makeAddOptionele() {
+        return `
+            <div class="inline-related">
+                <h3>
+                    <b>옵션 품목:</b>
+                    <span class="inline_label">#${optionsInlineLabelCount = optionsInlineLabelCount + 1}</span>
+                    <a href="#" 
+                        class="inline-deletelink" 
+                        onclick="optionInputDelete(event)">
+                        삭제하기
+                    </a>
+                </h3>
+
+                <fieldset class="module aligned ">
+                    <div style="display: flex;">
+                        <div class="form-row" style="flex-grow: 0;">
+                            <input 
+                                type="text" 
+                                class="class_option_name" 
+                                placeholder="옵션명 입력"
+                                onkeydown="optionName(event)">
+                        </div>
+                        <div class="form-row" style="flex-grow: 2;">
+                            <input 
+                                type="text" 
+                                    class="class_option_value" 
+                                    placeholder="옵션값 입력 - 엔터" 
+                                    style="width: 99.5%;"
+                                    onkeydown="optionValue(event)">
+                        </div>
+                    </div>
+                    <div class="form-row option-result">
+                    </div>
+                </fieldset>
+            </div>
+        `
+    }
+
+    document.querySelector('.field-options .add-row').addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelector('.field-options .options-input-block').insertAdjacentHTML('beforeend', makeAddOptionele());
+    });
+</script>
