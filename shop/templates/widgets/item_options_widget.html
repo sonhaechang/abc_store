@@ -25,34 +25,40 @@
         <h2>옵션 추가하기</h2>
 
         <div class="options-input-block">
-            <div class="inline-related">
+            <div id="inline_related_1" class="inline-related">
                 <h3>
                     <b>옵션 품목:</b>
                     <span class="inline_label">#1</span>
                     <a href="#" 
+                        id="option_input_delete_1"
                         class="inline-deletelink" 
+                        data-id="1"
                         onclick="optionInputDelete(event)">
                         삭제하기
                     </a>
                 </h3>
 
                 <fieldset class="module aligned ">
-                    <div style="display: flex;">
+                    <div class="option-input-inner" style="display: flex;">
                         <div class="form-row" style="flex-grow: 0;">
-                            <input type="text" 
+                            <input type="text"
+                                id="id_option_name_1" 
                                 class="class_option_name" 
-                                placeholder="옵션력 입력" 
+                                placeholder="옵션명 입력" 
+                                data-id="1"
                                 onkeydown="optionName(event)">
                         </div>
                         <div class="form-row" style="flex-grow: 2;">
                             <input type="text" 
+                                id="id_option_value_1"
                                 class="class_option_value" 
                                 placeholder="옵션값 입력 - 엔터"
-                                style="width: 99.5%;" 
+                                style="width: 99.5%;"
+                                data-id="1" 
                                 onkeydown="optionValue(event)">
                         </div>
                     </div>
-                    <div class="form-row option-result">
+                    <div id="id_option_result_1" class="form-row option-result">
                     </div>
                 </fieldset>
             </div>
@@ -63,24 +69,51 @@
         </div>
 
         <div class="submit-row" style="margin: 20px 0 0 !important;">
-            <input type="button" value="모든 옵션 품목 추가" class="default">
+            <input type="button" value="모든 옵션 품목 추가" class="default" onclick="addAllOption()">
         </div>
     </fieldset>
 </div>
 
 <script>
-    let optionsInlineLabelCount = 1;
+    let optionsInlineCount = 1;
+    const optionObject = new Object();
+
     document.querySelector('.field-options label').remove();
 
     function optionBadgeDelete(e) {
         e.preventDefault();
+        const id = e.target.getAttribute('data-id');
+        const key = document.getElementById(`id_option_name_${id}`).value;
+        const value = e.currentTarget.previousElementSibling.innerText;
+        const idx = optionObject[key].indexOf(value);
+
+        if (idx > -1) { 
+            optionObject[key].splice(idx, 1); 
+
+            if (optionObject[key].length == 0) {
+                delete optionObject[key];
+            }
+        }
+
         e.currentTarget.parentNode.remove();
     }
 
     function optionInputDelete (e) {
         e.preventDefault();
-        e.currentTarget.parentNode.parentNode.remove();
-        optionsInlineLabelCount = optionsInlineLabelCount - 1; 
+        const id = e.target.getAttribute('data-id');
+        const key = document.getElementById(`id_option_name_${id}`).value;
+
+        delete optionObject[key];
+
+        document.getElementById(`inline_related_${id}`).remove();
+        optionsInlineCount = optionsInlineCount - 1;
+
+        renameOption(id);
+    }
+
+    function renameOption(id) {
+        console.log(id);
+        console.log(document.querySelectorAll('.options-input-block .inline-related'));
     }
 
     function optionName(e) {
@@ -92,31 +125,65 @@
     function optionValue(e) {
         if (e.keyCode === 13) {
             e.preventDefault();
-            let value = e.target.value;
-            const nameValue = e.target.parentNode.previousElementSibling.children[0].value; 
 
-            if (nameValue === '') {
+            const valueInput = e.target;
+            const id = e.target.getAttribute('data-id');
+            const nameInput = document.getElementById(`id_option_name_${id}`);
+            // const nameValueInput = e.target.parentNode.previousElementSibling.children[0];
+
+            if (nameInput.value === '') {
                 alert('옵션명을 입력해주세요.');
                 return false; 
             }  
 
-            if (value === '') {
+            if (valueInput.value === '') {
                 alert('옵션값을 입력해주세요.');
                 return false;
+            }
+
+            if (!(nameInput.value in optionObject)) {
+                optionObject[nameInput.value] = new Array();
             } 
 
-            e.target.parentNode.parentNode.parentNode.querySelector('.option-result').insertAdjacentHTML(
-                'beforeend', makeOptionBadge(value));
-            e.target.value = '';
+            optionObject[nameInput.value].push(valueInput.value);
+
+            document.getElementById(`id_option_result_${id}`).insertAdjacentHTML(
+            // e.target.parentNode.parentNode.parentNode.querySelector('.option-result').insertAdjacentHTML(
+                'beforeend', makeOptionBadge(valueInput.value));
+            valueInput.value = '';
+        }
+    }
+
+    function addAllOption() {
+        const itemRealNames = Array();
+        const options = document.getElementById('id_options');
+        const keys = Object.keys(optionObject); 
+        options.value = JSON.stringify(optionObject);
+        let result;
+
+        for (let i = 0; optionObject[keys[0]].length > i; i++) { 
+            result = optionObject[keys[0]][i];
+
+            for (let k = 1; keys.length > k; k++) {
+                for (let v=0; optionObject[keys[k]].length > v; v++) {
+                    if (result.split() !== optionObject[keys[k]][v]) {
+                        result = result + `/${optionObject[keys[k]][v]}`;
+                        console.log(result);
+                    }
+                }
+            }            
         }
     }
 
     function makeOptionBadge(data) {
         return `
             <span class="option-badge">
-                <span class="option-badge-text">${data}</span>
+                <span class="option-badge-text">
+                    ${data}
+                </span>
                 <a href="#"
                     class="inline-deletelink option-badge-delete"
+                    data-id="${optionsInlineCount}"
                     onclick="optionBadgeDelete(event)">
                     삭제하기
                 </a>
@@ -125,37 +192,44 @@
     }
 
     function makeAddOptionele() {
+        const id = optionsInlineCount
         return `
-            <div class="inline-related">
+            <div id="inline_related_${id}" class="inline-related">
                 <h3>
                     <b>옵션 품목:</b>
-                    <span class="inline_label">#${optionsInlineLabelCount = optionsInlineLabelCount + 1}</span>
-                    <a href="#" 
+                    <span class="inline_label">#${id}</span>
+                    <a href="#"
+                        id="option_input_delete_${id}" 
                         class="inline-deletelink" 
+                        data-id=${id}
                         onclick="optionInputDelete(event)">
                         삭제하기
                     </a>
                 </h3>
 
                 <fieldset class="module aligned ">
-                    <div style="display: flex;">
+                    <div class="option-input-inner" style="display: flex;">
                         <div class="form-row" style="flex-grow: 0;">
                             <input 
                                 type="text" 
+                                id="id_option_name_${id}"
                                 class="class_option_name" 
                                 placeholder="옵션명 입력"
+                                data-id=${id}
                                 onkeydown="optionName(event)">
                         </div>
                         <div class="form-row" style="flex-grow: 2;">
                             <input 
-                                type="text" 
-                                    class="class_option_value" 
-                                    placeholder="옵션값 입력 - 엔터" 
-                                    style="width: 99.5%;"
-                                    onkeydown="optionValue(event)">
+                                type="text"
+                                id="id_option_value_${id}" 
+                                class="class_option_value" 
+                                placeholder="옵션값 입력 - 엔터" 
+                                style="width: 99.5%;"
+                                data-id=${id}
+                                onkeydown="optionValue(event)">
                         </div>
                     </div>
-                    <div class="form-row option-result">
+                    <div id="id_option_result_${id}" class="form-row option-result">
                     </div>
                 </fieldset>
             </div>
@@ -164,6 +238,7 @@
 
     document.querySelector('.field-options .add-row').addEventListener('click', e => {
         e.preventDefault();
+        optionsInlineCount = optionsInlineCount + 1;
         document.querySelector('.field-options .options-input-block').insertAdjacentHTML('beforeend', makeAddOptionele());
     });
 </script>
