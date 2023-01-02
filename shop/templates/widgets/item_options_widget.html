@@ -25,43 +25,6 @@
         <h2>옵션 추가하기</h2>
 
         <div class="options-input-block">
-            <div id="inline_related_1" class="inline-related">
-                <h3>
-                    <b>옵션 품목:</b>
-                    <span class="inline_label">#1</span>
-                    <a href="#" 
-                        id="option_input_delete_1"
-                        class="inline-deletelink" 
-                        data-id="1"
-                        onclick="optionInputDelete(event)">
-                        삭제하기
-                    </a>
-                </h3>
-
-                <fieldset class="module aligned ">
-                    <div class="option-input-inner" style="display: flex;">
-                        <div class="form-row" style="flex-grow: 0;">
-                            <input type="text"
-                                id="id_option_name_1" 
-                                class="class_option_name" 
-                                placeholder="옵션명 입력" 
-                                data-id="1"
-                                onkeydown="optionName(event)">
-                        </div>
-                        <div class="form-row" style="flex-grow: 2;">
-                            <input type="text" 
-                                id="id_option_value_1"
-                                class="class_option_value" 
-                                placeholder="옵션값 입력 - 엔터"
-                                style="width: 99.5%;"
-                                data-id="1" 
-                                onkeydown="optionValue(event)">
-                        </div>
-                    </div>
-                    <div id="id_option_result_1" class="form-row option-result">
-                    </div>
-                </fieldset>
-            </div>
         </div>
 
         <div class="add-row">
@@ -69,176 +32,216 @@
         </div>
 
         <div class="submit-row" style="margin: 20px 0 0 !important;">
-            <input type="button" value="모든 옵션 품목 추가" class="default" onclick="addAllOption()">
+            <input type="button" value="모든 옵션 품목 추가" id="add-all-option-btn" class="default">
         </div>
     </fieldset>
 </div>
 
 <script>
-    let optionsInlineCount = 1;
-    const optionObject = new Object();
-
     document.querySelector('.field-options label').remove();
 
-    function optionBadgeDelete(e) {
-        e.preventDefault();
-        const id = e.target.getAttribute('data-id');
-        const key = document.getElementById(`id_option_name_${id}`).value;
-        const value = e.currentTarget.previousElementSibling.innerText;
-        const idx = optionObject[key].indexOf(value);
-
-        if (idx > -1) { 
-            optionObject[key].splice(idx, 1); 
-
-            if (optionObject[key].length == 0) {
-                delete optionObject[key];
-            }
+    class Option {
+        constructor() {
+            this.optionsInlineCount = 0;
+            this. optionObject = new Object();;
         }
 
-        e.currentTarget.parentNode.remove();
-    }
+        makeOptionBadge(data, id) {
+            const badgeDeleteBtn = document.querySelectorAll(
+                `#id_option_result_${id} .option-badge-delete`).length;
 
-    function optionInputDelete (e) {
-        e.preventDefault();
-        const id = e.target.getAttribute('data-id');
-        const key = document.getElementById(`id_option_name_${id}`).value;
-
-        delete optionObject[key];
-
-        document.getElementById(`inline_related_${id}`).remove();
-        optionsInlineCount = optionsInlineCount - 1;
-
-        renameOption(id);
-    }
-
-    function renameOption(id) {
-        console.log(id);
-        console.log(document.querySelectorAll('.options-input-block .inline-related'));
-    }
-
-    function optionName(e) {
-        if (e.keyCode === 13) {
-            e.preventDefault();
-        }  
-    }
-
-    function optionValue(e) {
-        if (e.keyCode === 13) {
-            e.preventDefault();
-
-            const valueInput = e.target;
-            const id = e.target.getAttribute('data-id');
-            const nameInput = document.getElementById(`id_option_name_${id}`);
-            // const nameValueInput = e.target.parentNode.previousElementSibling.children[0];
-
-            if (nameInput.value === '') {
-                alert('옵션명을 입력해주세요.');
-                return false; 
-            }  
-
-            if (valueInput.value === '') {
-                alert('옵션값을 입력해주세요.');
-                return false;
-            }
-
-            if (!(nameInput.value in optionObject)) {
-                optionObject[nameInput.value] = new Array();
-            } 
-
-            optionObject[nameInput.value].push(valueInput.value);
-
-            document.getElementById(`id_option_result_${id}`).insertAdjacentHTML(
-            // e.target.parentNode.parentNode.parentNode.querySelector('.option-result').insertAdjacentHTML(
-                'beforeend', makeOptionBadge(valueInput.value));
-            valueInput.value = '';
-        }
-    }
-
-    function addAllOption() {
-        const itemRealNames = Array();
-        const options = document.getElementById('id_options');
-        const keys = Object.keys(optionObject); 
-        options.value = JSON.stringify(optionObject);
-        let result;
-
-        for (let i = 0; optionObject[keys[0]].length > i; i++) { 
-            result = optionObject[keys[0]][i];
-
-            for (let k = 1; keys.length > k; k++) {
-                for (let v=0; optionObject[keys[k]].length > v; v++) {
-                    if (result.split() !== optionObject[keys[k]][v]) {
-                        result = result + `/${optionObject[keys[k]][v]}`;
-                        console.log(result);
-                    }
-                }
-            }            
-        }
-    }
-
-    function makeOptionBadge(data) {
-        return `
-            <span class="option-badge">
-                <span class="option-badge-text">
-                    ${data}
-                </span>
-                <a href="#"
-                    class="inline-deletelink option-badge-delete"
-                    data-id="${optionsInlineCount}"
-                    onclick="optionBadgeDelete(event)">
-                    삭제하기
-                </a>
-            </span>
-        `
-    }
-
-    function makeAddOptionele() {
-        const id = optionsInlineCount
-        return `
-            <div id="inline_related_${id}" class="inline-related">
-                <h3>
-                    <b>옵션 품목:</b>
-                    <span class="inline_label">#${id}</span>
+            return `
+                <span class="option-badge">
+                    <span class="option-badge-text">
+                        ${data}
+                    </span>
                     <a href="#"
-                        id="option_input_delete_${id}" 
-                        class="inline-deletelink" 
-                        data-id=${id}
-                        onclick="optionInputDelete(event)">
+                        id="option_badge_delete_${id}_${badgeDeleteBtn+1}"
+                        class="inline-deletelink option-badge-delete"
+                        data-id="${id}">
                         삭제하기
                     </a>
-                </h3>
+                </span>
+            `
+        }
 
-                <fieldset class="module aligned ">
-                    <div class="option-input-inner" style="display: flex;">
-                        <div class="form-row" style="flex-grow: 0;">
-                            <input 
-                                type="text" 
-                                id="id_option_name_${id}"
-                                class="class_option_name" 
-                                placeholder="옵션명 입력"
-                                data-id=${id}
-                                onkeydown="optionName(event)">
+        makeAddOptionele() {
+            const id = this.optionsInlineCount;
+            return `
+                <div id="inline_related_${id}" class="inline-related">
+                    <h3>
+                        <b>옵션 품목:</b>
+                        <span class="inline_label">#${id}</span>
+                        <a href="#"
+                            id="option_input_delete_${id}" 
+                            class="inline-deletelink" 
+                            data-id=${id}>
+                            삭제하기
+                        </a>
+                    </h3>
+
+                    <fieldset class="module aligned ">
+                        <div class="option-input-inner" style="display: flex;">
+                            <div class="form-row" style="flex-grow: 0;">
+                                <input 
+                                    type="text" 
+                                    id="id_option_name_${id}"
+                                    class="class_option_name" 
+                                    placeholder="옵션명 입력"
+                                    data-id=${id}>
+                            </div>
+                            <div class="form-row" style="flex-grow: 2;">
+                                <input 
+                                    type="text"
+                                    id="id_option_value_${id}" 
+                                    class="class_option_value" 
+                                    placeholder="옵션값 입력 - 엔터" 
+                                    style="width: 99.5%;"
+                                    data-id=${id}>
+                            </div>
                         </div>
-                        <div class="form-row" style="flex-grow: 2;">
-                            <input 
-                                type="text"
-                                id="id_option_value_${id}" 
-                                class="class_option_value" 
-                                placeholder="옵션값 입력 - 엔터" 
-                                style="width: 99.5%;"
-                                data-id=${id}
-                                onkeydown="optionValue(event)">
+                        <div id="id_option_result_${id}" class="form-row option-result">
                         </div>
-                    </div>
-                    <div id="id_option_result_${id}" class="form-row option-result">
-                    </div>
-                </fieldset>
-            </div>
-        `
+                    </fieldset>
+                </div>
+            `
+        }
+
+        arrayProduct(...arrays) {
+            return arrays[0].reduce((prevAccumulator, currentArray) => {
+                let newAccumulator = new Array();
+
+                prevAccumulator.forEach(prevAccumulatorArray => {
+                    currentArray.forEach(currentValue => {
+                        newAccumulator.push(prevAccumulatorArray.concat(currentValue));
+                    });
+                });
+
+                return newAccumulator;
+            }, [[]]);
+        }
+
+        optionName(id) {
+            document.querySelectorAll('.class_option_name').forEach(ele => {
+                ele.addEventListener('keydown', e => {
+                    if (e.keyCode === 13) {
+                        e.preventDefault();
+                    };
+                });
+            });
+        }
+
+        optionValue(id) {
+            document.getElementById(
+                `id_option_value_${this.optionsInlineCount}`).addEventListener('keydown', e => {
+                    if (e.keyCode === 13) {
+                        e.preventDefault();
+
+                        const valueInput = e.target;
+                        const id = e.target.getAttribute('data-id');
+                        const nameInput = document.getElementById(`id_option_name_${id}`);
+
+                        if (nameInput.value === '') {
+                            alert('옵션명을 입력해주세요.');
+                            return false; 
+                        }  
+
+                        if (valueInput.value === '') {
+                            alert('옵션값을 입력해주세요.');
+                            return false;
+                        }
+
+                        if (!(nameInput.value in this.optionObject)) {
+                            this.optionObject[nameInput.value] = new Array();
+                        } 
+
+                        this.optionObject[nameInput.value].push(valueInput.value);
+
+                        document.getElementById(`id_option_result_${id}`).insertAdjacentHTML(
+                            'beforeend', this.makeOptionBadge(valueInput.value, id));
+                        valueInput.value = '';
+
+                        const badgeDeleteBtn = document.querySelectorAll(
+                            `#id_option_result_${id} .option-badge-delete`).length;
+
+                        document.getElementById(
+                            `option_badge_delete_${id}_${badgeDeleteBtn}`).addEventListener('click', e => this.optionBadgeDelete(e));
+                    }; 
+                }
+            );
+        }
+
+        addOption() {
+            document.querySelector('.field-options .add-row').addEventListener('click', e => {
+                e.preventDefault();
+
+                this.optionsInlineCount = this.optionsInlineCount + 1;
+
+                document.querySelector('.field-options .options-input-block'
+                    ).insertAdjacentHTML('beforeend', this.makeAddOptionele(e));
+
+                this.optionInputDelete();
+                this.optionName();
+                this.optionValue();
+            });
+        }
+
+        addAllOption() {
+            document.getElementById('add-all-option-btn').addEventListener('click', e => {
+                const optionArray = new Array();
+                const options = document.getElementById('id_options');
+                const keys = Object.keys(this.optionObject);
+
+                options.value = JSON.stringify(this.optionObject);
+
+                this.arrayProduct(Object.values(this.optionObject)).forEach((ele, i) => {
+                    document.querySelector('#itemreal_item-group .add-row a').click();
+                    document.getElementById(`id_itemreal_item-${i}-name`).value = ele.join('/');
+                });
+            });
+        }
+
+        optionInputDelete() {
+            document.getElementById(
+                `option_input_delete_${this.optionsInlineCount}`).addEventListener('click', e => {
+                    e.preventDefault();
+                    const id = e.target.getAttribute('data-id');
+                    const key = document.getElementById(`id_option_name_${id}`).value;
+
+                    delete this.optionObject[key];
+
+                    document.getElementById(`inline_related_${id}`).remove();
+                    this.optionsInlineCount = this.optionsInlineCount - 1;
+
+                    // renameOption(id);
+                }
+            );
+        }
+
+        optionBadgeDelete(e) {
+            e.preventDefault();
+
+            const id = e.target.getAttribute('data-id');
+            const key = document.getElementById(`id_option_name_${id}`).value;
+            const value = e.currentTarget.previousElementSibling.innerText;
+
+            if (value !== 'undefined') {
+                const idx = this.optionObject[key].indexOf(value);
+
+                if (idx > -1) { 
+                    this.optionObject[key].splice(idx, 1); 
+
+                    if (this.optionObject[key].length == 0) {
+                        delete this.optionObject[key];
+                    }
+                }
+
+                e.currentTarget.parentNode.remove();
+            }
+        }
     }
 
-    document.querySelector('.field-options .add-row').addEventListener('click', e => {
-        e.preventDefault();
-        optionsInlineCount = optionsInlineCount + 1;
-        document.querySelector('.field-options .options-input-block').insertAdjacentHTML('beforeend', makeAddOptionele());
-    });
+    const option = new Option();
+    option.addOption();
+    option.addAllOption();
 </script>
