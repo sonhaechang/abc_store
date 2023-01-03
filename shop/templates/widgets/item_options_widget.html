@@ -192,6 +192,11 @@
                 const options = document.getElementById('id_options');
                 const keys = Object.keys(this.optionObject);
 
+                if (keys.length === 0) {
+                    alert('추가된 옵션이 없습니다. 옵션을 먼저 추가해주세요.');
+                    return false;
+                }
+
                 options.value = JSON.stringify(this.optionObject);
 
                 this.arrayProduct(Object.values(this.optionObject)).forEach((ele, i) => {
