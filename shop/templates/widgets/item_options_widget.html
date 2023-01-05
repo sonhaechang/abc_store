@@ -65,10 +65,10 @@
             `
         }
 
-        makeAddOptionele() {
+        makeAddOptionEle() {
             const id = this.optionsInlineCount;
             return `
-                <div id="inline_related_${id}" class="inline-related">
+                <div id="inline_related_${id}" class="inline-related" data-id=${id}>
                     <h3>
                         <b>옵션 품목:</b>
                         <span class="inline_label">#${id}</span>
@@ -121,7 +121,55 @@
             }, [[]]);
         }
 
-        optionName(id) {
+        setOptionAttr(elements) {
+            elements.forEach(e => {
+                const prevId = parseInt(e.getAttribute('data-id'));
+                const currentId = prevId - 1;
+
+                const inputDelet = e.querySelector('.inline-deletelink');
+                const inputName = e.querySelector('.class_option_name');
+                const inputValue = e.querySelector('.class_option_value');
+
+                e.querySelector('.option-result').setAttribute('id', `id_option_result_${currentId}`);
+                e.setAttribute('id', `inline_related_${currentId}`);
+                e.setAttribute('data-id', `${currentId}`);
+                e.querySelector('.inline_label').innerText = `${currentId}`;
+
+                inputDelet.setAttribute('id', `option_input_delete_${currentId}`);
+                inputDelet.setAttribute('data-id', `${currentId}`);
+
+                inputName.setAttribute('id', `id_option_name_${currentId}`);
+                inputName.setAttribute('data-id', `${currentId}`);
+
+                inputValue.setAttribute('id', `id_option_value_${currentId}`);
+                inputValue.setAttribute('data-id', `${currentId}`);
+
+                this.setOptionBadgeAttr(currentId);
+            });
+        }
+
+        setOptionBadgeAttr(parentId) {
+            document.querySelectorAll(`#id_option_result_${parentId} .option-badge`).forEach(e => {
+                const aTag = e.querySelector('.option-badge-delete');
+                const id = aTag.getAttribute('id').slice(-1);
+
+                aTag.setAttribute('id', `option_badge_delete_${parentId}_${id}`);
+                aTag.setAttribute('data-id', parentId);
+            })
+        }
+
+        optionRename(id) {
+            const currentID = parseInt(id);
+            const options = document.querySelectorAll('.options-input-block .inline-related');
+            const lastID = parseInt(options[options.length-1].getAttribute('id').slice(-1));
+
+            if (currentID < lastID) {
+                this.setOptionAttr(Array.from(options).slice(currentID-1));
+                this.optionNameHandler();
+            }
+        }
+
+        optionNameHandler() {
             document.querySelectorAll('.class_option_name').forEach(ele => {
                 ele.addEventListener('keydown', e => {
                     if (e.keyCode === 13) {
@@ -131,44 +179,42 @@
             });
         }
 
-        optionValue(id) {
-            document.getElementById(
-                `id_option_value_${this.optionsInlineCount}`).addEventListener('keydown', e => {
-                    if (e.keyCode === 13) {
-                        e.preventDefault();
+        optionValueHandler() {
+            document.getElementById(`id_option_value_${this.optionsInlineCount}`).addEventListener('keydown', e => {
+                if (e.keyCode === 13) {
+                    e.preventDefault();
 
-                        const valueInput = e.target;
-                        const id = e.target.getAttribute('data-id');
-                        const nameInput = document.getElementById(`id_option_name_${id}`);
+                    const valueInput = e.target;
+                    const id = e.target.getAttribute('data-id');
+                    const nameInput = document.getElementById(`id_option_name_${id}`);
 
-                        if (nameInput.value === '') {
-                            alert('옵션명을 입력해주세요.');
-                            return false; 
-                        }  
+                    if (nameInput.value === '') {
+                        alert('옵션명을 입력해주세요.');
+                        return false; 
+                    }  
 
-                        if (valueInput.value === '') {
-                            alert('옵션값을 입력해주세요.');
-                            return false;
-                        }
+                    if (valueInput.value === '') {
+                        alert('옵션값을 입력해주세요.');
+                        return false;
+                    }
 
-                        if (!(nameInput.value in this.optionObject)) {
-                            this.optionObject[nameInput.value] = new Array();
-                        } 
+                    if (!(nameInput.value in this.optionObject)) {
+                        this.optionObject[nameInput.value] = new Array();
+                    } 
 
-                        this.optionObject[nameInput.value].push(valueInput.value);
+                    this.optionObject[nameInput.value].push(valueInput.value);
 
-                        document.getElementById(`id_option_result_${id}`).insertAdjacentHTML(
-                            'beforeend', this.makeOptionBadge(valueInput.value, id));
-                        valueInput.value = '';
+                    document.getElementById(`id_option_result_${id}`).insertAdjacentHTML(
+                        'beforeend', this.makeOptionBadge(valueInput.value, id));
+                    valueInput.value = '';
 
-                        const badgeDeleteBtn = document.querySelectorAll(
-                            `#id_option_result_${id} .option-badge-delete`).length;
+                    const badgeDeleteBtn = document.querySelectorAll(
+                        `#id_option_result_${id} .option-badge-delete`).length;
 
-                        document.getElementById(
-                            `option_badge_delete_${id}_${badgeDeleteBtn}`).addEventListener('click', e => this.optionBadgeDelete(e));
-                    }; 
-                }
-            );
+                    document.getElementById(
+                        `option_badge_delete_${id}_${badgeDeleteBtn}`).addEventListener('click', e => this.optionBadgeDelete(e));
+                }; 
+            });
         }
 
         addOption() {
@@ -178,11 +224,11 @@
                 this.optionsInlineCount = this.optionsInlineCount + 1;
 
                 document.querySelector('.field-options .options-input-block'
-                    ).insertAdjacentHTML('beforeend', this.makeAddOptionele(e));
+                    ).insertAdjacentHTML('beforeend', this.makeAddOptionEle(e));
 
                 this.optionInputDelete();
-                this.optionName();
-                this.optionValue();
+                this.optionNameHandler();
+                this.optionValueHandler();
             });
         }
 
@@ -218,7 +264,7 @@
                     document.getElementById(`inline_related_${id}`).remove();
                     this.optionsInlineCount = this.optionsInlineCount - 1;
 
-                    // renameOption(id);
+                    this.optionRename(id);
                 }
             );
         }
