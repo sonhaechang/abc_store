@@ -43,7 +43,7 @@
     class Option {
         constructor() {
             this.optionsInlineCount = 0;
-            this. optionObject = new Object();;
+            this. optionObject = new Object();
         }
 
         makeOptionBadge(data, id) {
@@ -237,18 +237,34 @@
                 const optionArray = new Array();
                 const options = document.getElementById('id_options');
                 const keys = Object.keys(this.optionObject);
+                const itemReal = document.querySelectorAll('.dynamic-itemreal_item')
 
                 if (keys.length === 0) {
                     alert('추가된 옵션이 없습니다. 옵션을 먼저 추가해주세요.');
                     return false;
                 }
 
-                options.value = JSON.stringify(this.optionObject);
+                if (itemReal.length !== 0) {
+                    this.itemRealDelete(itemReal);
+                    this.addAllOptionHandler(options);
+                }
 
-                this.arrayProduct(Object.values(this.optionObject)).forEach((ele, i) => {
-                    document.querySelector('#itemreal_item-group .add-row a').click();
-                    document.getElementById(`id_itemreal_item-${i}-name`).value = ele.join('/');
-                });
+                this.addAllOptionHandler(options);
+            });
+        }
+
+        addAllOptionHandler(options) {
+            options.value = JSON.stringify(this.optionObject);
+
+            this.arrayProduct(Object.values(this.optionObject)).forEach((ele, i) => {
+                document.querySelector('#itemreal_item-group .add-row a').click();
+                document.getElementById(`id_itemreal_item-${i}-name`).value = ele.join('/');
+            });
+        }
+
+        itemRealDelete(items) {
+            items.forEach(e => {
+                e.querySelector('.inline-deletelink').click();
             });
         }
 
