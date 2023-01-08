@@ -198,12 +198,6 @@
                         return false;
                     }
 
-                    if (!(nameInput.value in this.optionObject)) {
-                        this.optionObject[nameInput.value] = new Array();
-                    } 
-
-                    this.optionObject[nameInput.value].push(valueInput.value);
-
                     document.getElementById(`id_option_result_${id}`).insertAdjacentHTML(
                         'beforeend', this.makeOptionBadge(valueInput.value, id));
                     valueInput.value = '';
@@ -234,27 +228,47 @@
 
         addAllOption() {
             document.getElementById('add-all-option-btn').addEventListener('click', e => {
-                const optionArray = new Array();
-                const options = document.getElementById('id_options');
                 const keys = Object.keys(this.optionObject);
-                const itemReal = document.querySelectorAll('.dynamic-itemreal_item')
-
-                if (keys.length === 0) {
-                    alert('추가된 옵션이 없습니다. 옵션을 먼저 추가해주세요.');
-                    return false;
-                }
-
-                if (itemReal.length !== 0) {
-                    this.itemRealDelete(itemReal);
-                    this.addAllOptionHandler(options);
-                }
-
-                this.addAllOptionHandler(options);
+                
+                this.setOptionsObject();
             });
         }
 
+        setOptionsObject() {
+            const optionsBlock = document.querySelector('.options-input-block');
+            const options = optionsBlock.querySelectorAll('.inline-related');
+            const optionResult = optionsBlock.querySelectorAll('.option-result');
+            const keys = Object.keys(this.optionObject);
+        
+            if (optionResult.length == 0) {
+                alert('추가된 옵션이 없습니다. 옵션을 먼저 추가해주세요.');
+                return false;
+            };
+
+            if (keys.length > 0) {
+                keys.forEach(key => {
+                    delete this.optionObject[key];
+                });
+
+                this.itemRealDelete();
+            }
+            
+            options.forEach(ele => {
+                const key = ele.querySelector('.class_option_name').value;
+                const values = ele.querySelectorAll('.option-result .option-badge-text');
+
+                this.optionObject[key] = new Array();
+
+                values.forEach(value => {
+                    this.optionObject[key].push(value.innerText);
+                });
+            });
+
+            this.addAllOptionHandler();
+        }
+
         addAllOptionHandler(options) {
-            options.value = JSON.stringify(this.optionObject);
+            document.getElementById('id_options').value = JSON.stringify(this.optionObject);
 
             this.arrayProduct(Object.values(this.optionObject)).forEach((ele, i) => {
                 document.querySelector('#itemreal_item-group .add-row a').click();
@@ -262,7 +276,9 @@
             });
         }
 
-        itemRealDelete(items) {
+        itemRealDelete() {
+            const items = document.querySelectorAll('.dynamic-itemreal_item');
+
             items.forEach(e => {
                 e.querySelector('.inline-deletelink').click();
             });
@@ -275,8 +291,6 @@
                     const id = e.target.getAttribute('data-id');
                     const key = document.getElementById(`id_option_name_${id}`).value;
 
-                    delete this.optionObject[key];
-
                     document.getElementById(`inline_related_${id}`).remove();
                     this.optionsInlineCount = this.optionsInlineCount - 1;
 
@@ -287,24 +301,7 @@
 
         optionBadgeDelete(e) {
             e.preventDefault();
-
-            const id = e.target.getAttribute('data-id');
-            const key = document.getElementById(`id_option_name_${id}`).value;
-            const value = e.currentTarget.previousElementSibling.innerText;
-
-            if (value !== 'undefined') {
-                const idx = this.optionObject[key].indexOf(value);
-
-                if (idx > -1) { 
-                    this.optionObject[key].splice(idx, 1); 
-
-                    if (this.optionObject[key].length == 0) {
-                        delete this.optionObject[key];
-                    }
-                }
-
-                e.currentTarget.parentNode.remove();
-            }
+            e.currentTarget.parentNode.remove();
         }
     }
 
