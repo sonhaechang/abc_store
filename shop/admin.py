@@ -66,7 +66,7 @@ class ReviewInline(admin.StackedInline):
 	extra = 0
 
 
-class ItemRealInline(admin.StackedInline):
+class ItemRealInline(admin.TabularInline):
     model = ItemReal
     raw_id_fields = ['item'] 
     extra = 0
