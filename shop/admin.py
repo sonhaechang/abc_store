@@ -1,4 +1,7 @@
+import json
+
 from django.contrib import admin
+from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -89,6 +92,23 @@ class ItemAdmin(admin.ModelAdmin):
     search_fields = ['name']
     inlines = [ItemRealInline, ItemImageInline]
     prepopulated_fields = {'slug':('name',)}
+
+    @transaction.atomic
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        
+        options = json.loads(request.POST.get('options'))
+        option_list = list()
+
+        for key in list(options.keys()):
+            for value in options[key]:
+                option_list.append(ItemOption(
+                    item=obj, 
+                    name=key,
+                    value=value
+                ))
+
+        ItemOption.objects.bulk_create(option_list)
 
 
 @admin.register(ItemOption)
