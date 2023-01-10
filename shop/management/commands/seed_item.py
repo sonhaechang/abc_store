@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 from django_seed import Seed
 
-from shop.models import Category, Item
+from shop.models import Category, Item, ItemOption, ItemReal
 
 class Command(BaseCommand):
 	model_name = f'{Item}'
@@ -37,7 +37,7 @@ class Command(BaseCommand):
 			sale_amount = amount / random.choice(is_sales)
 			sale_percent = ((amount-sale_amount) / amount) * 100
 
-			Item.objects.create(
+			item = Item.objects.create(
 				category=random.choice(categorys),
 				name=name,
 				slug=name,
@@ -49,6 +49,20 @@ class Command(BaseCommand):
 				is_halal=random.choice(booleans),
 				is_public=True,
 				best_item=random.choice(booleans)
+			)
+
+			ItemOption.objects.create(
+				item=item,
+				name='옵션선택',
+				value=name
+			)
+
+			ItemReal.objects.create(
+				item=item,
+				name=name,
+				quantity=100, 
+				safe_quantity=10, 
+				is_public=True
 			)
 
 		self.stdout.write(self.style.SUCCESS(f'{number} {self.model_name} 생성!'))
