@@ -207,14 +207,6 @@ class Option {
             alert('추가된 옵션이 없습니다. 옵션을 먼저 추가해주세요.');
             return false;
         };
-
-        if (keys.length > 0) {
-            keys.forEach(key => {
-                delete this.optionObject[key];
-            });
-
-            this.itemRealDelete();
-        }
         
         options.forEach(ele => {
             const key = ele.querySelector('.class_option_name').value;
@@ -252,19 +244,19 @@ class Option {
     }
 
     addAllOptionHandler() {
+        const items = document.querySelectorAll('.dynamic-itemreal_item');
+        const itemsValue = (Array.from(items)).map( e => { return e.querySelector('.field-name input').value; });
+        const itemsLen = items.length;
+        let i = 0;
+
         document.getElementById('id_options').value = JSON.stringify(this.optionObject);
 
-        this.arrayProduct(Object.values(this.optionObject)).forEach((ele, i) => {
-            document.querySelector('#itemreal_item-group .add-row a').click();
-            document.getElementById(`id_itemreal_item-${i}-name`).value = ele.join('/');
-        });
-    }
-
-    itemRealDelete() {
-        const items = document.querySelectorAll('.dynamic-itemreal_item');
-
-        items.forEach(e => {
-            e.querySelector('.inline-deletelink').click();
+        this.arrayProduct(Object.values(this.optionObject)).forEach((ele) => {
+            if (itemsValue.indexOf(ele.join('/')) === -1) {
+                document.querySelector('#itemreal_item-group .add-row a').click();
+                document.getElementById(`id_itemreal_item-${i+itemsLen}-name`).value = ele.join('/');
+                i++;
+            }
         });
     }
 
