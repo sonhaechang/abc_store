@@ -1,4 +1,6 @@
+import json
 import os
+
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -93,6 +95,10 @@ class Item(HistoryModel):
 		verbose_name=_('베스트 아이템')
 	)
 
+	options = models.TextField(
+		verbose_name=_('상품 옵션')
+	)
+
 	class Meta:
 		ordering = ['-id']
 		db_table = 'item_tb'
@@ -105,36 +111,14 @@ class Item(HistoryModel):
 	def get_first_image(self):
 		return self.itemimage_item.first()
 
+	def get_options(self):
+		return json.loads(self.options)
+
 	def get_absolute_url(self):
 		return reverse(
 			'shop:item_detail', 
 			args=[self.category.category.slug, self.category.slug, self.slug]
 		)
-
-
-class ItemOption(HistoryModel):
-	item = models.ForeignKey(
-		to='shop.Item', 
-		on_delete=models.CASCADE,
-		related_name='%(class)s_item',
-		verbose_name=_('상품')
-	)
-	
-	name = models.CharField(
-		max_length=100,
-		verbose_name = _('옵션명')
-	)
-
-	value = models.CharField(
-		max_length=100,
-		verbose_name = _('옵션값')
-	)
-
-	class Meta:
-		ordering = ['id']
-		db_table = 'item_option_tb'
-		verbose_name = _('상품 옵션')
-		verbose_name_plural = _('상품 옵션')
 
 
 class ItemReal(HistoryModel):
@@ -176,6 +160,12 @@ class ItemReal(HistoryModel):
 		db_table = 'item_real_tb'
 		verbose_name = _('상품 실물')
 		verbose_name_plural = _('상품 실물')
+
+	def get_amount(self):
+		if self.item.sale_amount:
+			return int(self.item.sale_amount) + int(self.extra_amount)
+		else:
+			return int(self.item.amount) + int(self.extra_amount)
 
 
 class ItemImage(HistoryModel):
