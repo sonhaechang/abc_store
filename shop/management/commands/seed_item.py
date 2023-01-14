@@ -1,12 +1,12 @@
+import json
 import random
-import datetime
 
 from django.core.management.base import BaseCommand
 
 from faker import Faker
 from django_seed import Seed
 
-from shop.models import Category, Item, ItemOption, ItemReal
+from shop.models import Category, Item, ItemReal
 
 class Command(BaseCommand):
 	model_name = f'{Item}'
@@ -36,6 +36,7 @@ class Command(BaseCommand):
 			amount = i * 1000
 			sale_amount = amount / random.choice(is_sales)
 			sale_percent = ((amount-sale_amount) / amount) * 100
+			options = json.dumps({'옵션선택': [name]})
 
 			item = Item.objects.create(
 				category=random.choice(categorys),
@@ -48,13 +49,8 @@ class Command(BaseCommand):
 				stock=100,
 				is_halal=random.choice(booleans),
 				is_public=True,
-				best_item=random.choice(booleans)
-			)
-
-			ItemOption.objects.create(
-				item=item,
-				name='옵션선택',
-				value=name
+				best_item=random.choice(booleans),
+				options=options,
 			)
 
 			ItemReal.objects.create(
