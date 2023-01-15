@@ -18,23 +18,73 @@
 		</div>
 	</div>
 
-	<div class="quantity-block">
-		<p id="remaining-quantity" class="d-none">{{ item.stock }}</p>
-		<div class="col-5 text-left pr-0">수량 선택</div>
-		<div>
-			<button class="factor-btn" data-factor="-1" data-id="{{ item.pk }}"
-				value="{% if item.sale_amount %}{{ item.sale_amount }}{% else %}{{ item.amount }}{% endif %}">-</button>
-				<span class="quantity">1</span>
-			<button class="factor-btn" data-factor="1" data-id="{{ item.pk }}"
-				value="{% if item.sale_amount %}{{ item.sale_amount }}{% else %}{{ item.amount }}{% endif %}">+</button>
-		</div>
+		
+	<div id="select_options_block">
+		{% for key, values in item.get_options.items %}
+			<span>{{ key }}: </span>
+			{% if item.is_one_item_real %}
+				<select id="select_option_box_{{ forloop.counter }}" class="select_option_box">
+					{% for value in values %}
+						<option value="{{ value }}">{{ value }}</option>
+					{% endfor %}
+				</select>
+			{% else %}
+				<select id="select_option_box_{{ forloop.counter }}" class="select_option_box">
+					<option value="">옵션을 선택해주세요.</option>
+					{% if forloop.counter == 1 %}
+						{% for value in values %}
+							<option value="{{ value }}">{{ value }}</option>
+						{% endfor %}
+					{% endif %}
+				</select>
+			{% endif %}
+		{% endfor %}
+	</div>
+
+	<div id="item_real_block" class="border">		
+		{% for item_real in item.itemreal_item.all %}
+			<div id="item_real_{{ item_real.pk }}" 
+				class="item_real {% if not item.is_one_item_real %}d-none{% endif %}">
+				<div class="d-inline-block">
+					<p class="m-0">{{ item.name }}</p>
+	
+					{% if item.name != item_real.name %}
+						<small class="item_real_name_block">
+							<span class="item_real_name" 
+								data-id="{{ item_real.pk }}">
+								{{ item_real.name }}
+							</span>
+
+							{% if item_real.is_extra_amount %}
+								<span>(+{{ item_real.extra_amount|intcomma }}원)</span>
+							{% endif %}
+						</small>
+					{% endif %}
+				</div>
+				<div class="d-inline-block">
+					<button class="factor-btn" data-factor="-1" data-id="{{ item_real.pk }}"
+						value="{{ item_real.get_amount }}">-</button>
+						<span class="quantity">1</span>
+					<button class="factor-btn" data-factor="1" data-id="{{ item_real.pk }}"
+						value="{{ item_real.get_amount }}">+</button>
+				</div>
+				<div class="d-inline-block">
+					<p>
+						<span id="total-amount-{{ item_real.pk }}" value="{{ item_real.get_amount }}">
+							{{ item_real.get_amount|intcomma }}
+						</span>
+						<span>원</span>
+					</p>
+				</div>
+			</div>
+		{% endfor %}
 	</div>
 
 	<br>
 
 	<div value="{{ itme.id }}">
 		<p>총 결제금액</p>
-		<p>
+		<!-- <p>
 			<span id="total-amount" value="{{ item.total_amount }}">
 				{% if item.sale_amount %}
 					{{ item.sale_amount|intcomma }}
@@ -43,7 +93,7 @@
 				{% endif %}
 			</span>
 			<span >원</span>
-		</p>
+		</p> -->
 	</div>
 
 	<button id="add-cart" data-item-id="{{ item.id }}">add to cart</button>
@@ -62,6 +112,7 @@
 {% endblock %}
 
 {% block script %}
+	{{ item.get_options|json_script:"options-object-js"}}    
 	<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.10.2/underscore-min.js"></script>
 	<script src="//unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="{% static 'shop/js/review.js' %}" id="review-js" review-url="{{ review_url }}"></script>
@@ -69,9 +120,13 @@
 	<script src="{% static 'cart/js/cart.js' %}" id="cart-js" 
 		add-cart-url="{% url 'cart:add_cart' %}" cart-list-url="{% url 'cart:cart_list' %}"></script>
 	<script src="{% static 'order/js/quantity_select.js' %}"></script>
+	<script src="{% static 'shop/js/options.js' %}"></script>
 	<script>
 		const quantitySelecter = new QuantitySelecter(document.querySelectorAll('.factor-btn'));
 		const cart = new Cart();
+		const option = new Option();
+
+		option.selectOptions();
 
 		quantitySelecter.quantity_select();
 		document.getElementById('add-cart').addEventListener('click', e => cart.add_cart(
