@@ -114,6 +114,14 @@ class Item(HistoryModel):
 	def get_options(self):
 		return json.loads(self.options)
 
+	def is_one_item_real(self):
+		values = self.get_options().values()
+
+		if len(list(values)) == 1 and len(list(values)[0]) == 1:
+			return True
+		else:
+			return False
+
 	def get_absolute_url(self):
 		return reverse(
 			'shop:item_detail', 
@@ -166,6 +174,12 @@ class ItemReal(HistoryModel):
 			return int(self.item.sale_amount) + int(self.extra_amount)
 		else:
 			return int(self.item.amount) + int(self.extra_amount)
+
+	def is_extra_amount(self):
+		if self.extra_amount > 0:
+			return True
+		else:
+			return False
 
 
 class ItemImage(HistoryModel):
