@@ -1,11 +1,8 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 
 from core.models import HistoryModel
-
-from shop.models import Item
 
 
 # Create your models here.
@@ -18,10 +15,10 @@ class Cart(HistoryModel):
     )
 
     item = models.ForeignKey(
-        to='shop.Item', 
+        to='shop.ItemReal', 
         related_name='%(class)s_item', 
         on_delete=models.CASCADE,
-        verbose_name=_('상품')
+        verbose_name=_('실물상품')
     )
 
     quantity = models.PositiveSmallIntegerField(
