@@ -23,13 +23,13 @@
 		{% for key, values in item.get_options.items %}
 			<span>{{ key }}: </span>
 			{% if item.is_one_item_real %}
-				<select id="select_option_box_{{ forloop.counter }}" class="select_option_box">
+				<select id="select-option-box-{{ forloop.counter }}" class="select-option-box">
 					{% for value in values %}
 						<option value="{{ value }}">{{ value }}</option>
 					{% endfor %}
 				</select>
 			{% else %}
-				<select id="select_option_box_{{ forloop.counter }}" class="select_option_box">
+				<select id="select-option-box-{{ forloop.counter }}" class="select-option-box">
 					<option value="">옵션을 선택해주세요.</option>
 					{% if forloop.counter == 1 %}
 						{% for value in values %}
@@ -41,16 +41,16 @@
 		{% endfor %}
 	</div>
 
-	<div id="item_real_block" class="border">		
+	<div id="item-real-block" class="border">		
 		{% for item_real in item.itemreal_item.all %}
-			<div id="item_real_{{ item_real.pk }}" 
-				class="item_real {% if not item.is_one_item_real %}d-none{% endif %}">
+			<div id="item-real-{{ item_real.pk }}" 
+				class="item-real {% if not item.is_one_item_real %}d-none{% endif %}">
 				<div class="d-inline-block">
 					<p class="m-0">{{ item.name }}</p>
 	
 					{% if item.name != item_real.name %}
-						<small class="item_real_name_block">
-							<span class="item_real_name" 
+						<small class="item-real-name-block">
+							<span class="item-real-name" 
 								data-id="{{ item_real.pk }}">
 								{{ item_real.name }}
 							</span>
@@ -75,6 +75,9 @@
 						</span>
 						<span>원</span>
 					</p>
+				</div>
+				<div class="d-inline-block">
+					<button class="item-real-delete-btn" value="{{ item_real.pk }}">X</button>
 				</div>
 			</div>
 		{% endfor %}
@@ -124,10 +127,6 @@
 	<script>
 		const quantitySelecter = new QuantitySelecter(document.querySelectorAll('.factor-btn'));
 		const cart = new Cart();
-		const option = new Option();
-
-		option.selectOptions();
-
 		quantitySelecter.quantity_select();
 		document.getElementById('add-cart').addEventListener('click', e => cart.add_cart(
 			e.currentTarget.getAttribute('data-item-id'),

@@ -2,21 +2,30 @@ class Option {
     constructor() {
         this.optionObject = JSON.parse(
             document.getElementById('options-object-js').textContent);
-        this.itemRealEle = document.querySelectorAll('.item_real .item_real_name');
-        this.itemRealObject = new Object();
         this.keys = Object.keys(this.optionObject);
         this.values = Object.values(this.optionObject);
+        this.itemRealObject = new Object();
     }
 
     itemRealHandler() {
         const name = Object.values(this.itemRealObject).join('/');
+        const itemReal = document.querySelectorAll('.item-real .item-real-name');
 
-        this.itemRealEle.forEach(e => {
+        itemReal.forEach(e => {
             if (e.innerText.trim() === name) {
                 const id = e.getAttribute('data-id');
-                document.getElementById(`item_real_${id}`).classList.remove('d-none');
+                document.getElementById(`item-real-${id}`).classList.remove('d-none');
                 return false;
             }
+        });
+    }
+
+    itemRealDelete() {
+        document.querySelectorAll('.item-real-delete-btn').forEach(ele => {
+            ele.addEventListener('click', e => {
+                const id = e.target.getAttribute('value');
+                document.getElementById(`item-real-${id}`).classList.add('d-none');
+            })
         });
     }
 
@@ -32,17 +41,17 @@ class Option {
         this.keys.forEach((key, idx) => {
             idx = idx + 1;
             const keyLen = this.keys.length;
-            const selectBox = document.getElementById(`select_option_box_${idx}`);
+            const selectBox = document.getElementById(`select-option-box-${idx}`);
 
             selectBox.addEventListener('change', () => {
                 const option = selectBox.options[selectBox.selectedIndex].value;
 
-                this.itemRealObject[`select_option_box_${idx}`] = option;
+                this.itemRealObject[`select-option-box-${idx}`] = option;
 
                 if (keyLen === idx) {
                     this.itemRealHandler();
                 } else {
-                    const nextSelectBox = document.getElementById(`select_option_box_${idx+1}`);
+                    const nextSelectBox = document.getElementById(`select-option-box-${idx+1}`);
 
                     if (nextSelectBox) { this.makeOptions(nextSelectBox, this.keys[idx]); }
                 }
@@ -50,3 +59,8 @@ class Option {
         });
     }
 }
+
+const option = new Option();
+
+option.selectOptions();
+option.itemRealDelete();
