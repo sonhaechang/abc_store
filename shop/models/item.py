@@ -169,6 +169,9 @@ class ItemReal(HistoryModel):
 		verbose_name = _('상품 실물')
 		verbose_name_plural = _('상품 실물')
 
+	def get_item_name(self):
+		return self.item.name
+
 	def get_amount(self):
 		if self.item.sale_amount:
 			return int(self.item.sale_amount) + int(self.extra_amount)
