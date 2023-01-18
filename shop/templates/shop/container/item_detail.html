@@ -3,19 +3,17 @@
 {% load static %}
 
 {% block content %}
-	<div id="item-list">
-		<div class="item" data-item-id="{{ item.id }}">
-			<p>상품명: {{ item.name }}</p>
-			{% if item.sale_amount %}
-				<p style="text-decoration: line-through;">
-					정가: {{ item.amount|intcomma }}원
-				</p>
-				<p>판매가: {{ item.sale_amount|intcomma }}원</p>
-			{% else %}
-				<p>판매가: {{ item.amount|intcomma }}원</p>
-			{% endif %}
-			<p>상품 설명: {{ item.description }}</p>
-		</div>
+	<div id="item-info">
+		<p>상품명: {{ item.name }}</p>
+		{% if item.sale_amount %}
+			<p style="text-decoration: line-through;">
+				정가: {{ item.amount|intcomma }}원
+			</p>
+			<p>판매가: {{ item.sale_amount|intcomma }}원</p>
+		{% else %}
+			<p>판매가: {{ item.amount|intcomma }}원</p>
+		{% endif %}
+		<p>상품 설명: {{ item.description }}</p>
 	</div>
 
 		
@@ -23,13 +21,15 @@
 		{% for key, values in item.get_options.items %}
 			<span>{{ key }}: </span>
 			{% if item.is_one_item_real %}
-				<select id="select-option-box-{{ forloop.counter }}" class="select-option-box">
+				<select id="select-option-box-{{ forloop.counter }}" 
+					class="select-option-box d-block">
 					{% for value in values %}
 						<option value="{{ value }}">{{ value }}</option>
 					{% endfor %}
 				</select>
 			{% else %}
-				<select id="select-option-box-{{ forloop.counter }}" class="select-option-box">
+				<select id="select-option-box-{{ forloop.counter }}" 
+					class="select-option-box d-block">
 					<option value="">옵션을 선택해주세요.</option>
 					{% if forloop.counter == 1 %}
 						{% for value in values %}
@@ -41,10 +41,11 @@
 		{% endfor %}
 	</div>
 
-	<div id="item-real-block" class="border">		
+	<div id="item-list" class="border">		
 		{% for item_real in item.itemreal_item.all %}
 			<div id="item-real-{{ item_real.pk }}" 
-				class="item-real {% if not item.is_one_item_real %}d-none{% endif %}">
+				class="item item-real {% if not item.is_one_item_real %}d-none{% else %}d-block{% endif %}"
+				data-item-id="{{ item_real.id }}">
 				<div class="d-inline-block">
 					<p class="m-0">{{ item.name }}</p>
 	
@@ -61,24 +62,39 @@
 						</small>
 					{% endif %}
 				</div>
+				<div class="item-real-amount d-none">
+					{{ item_real.get_amount }}
+				</div>
 				<div class="d-inline-block">
-					<button class="factor-btn" data-factor="-1" data-id="{{ item_real.pk }}"
-						value="{{ item_real.get_amount }}">-</button>
+					<button class="factor-btn" 
+						data-factor="-1" 
+						data-id="{{ item_real.pk }}"
+						value="{{ item_real.get_amount }}">
+						-
+					</button>
 						<span class="quantity">1</span>
-					<button class="factor-btn" data-factor="1" data-id="{{ item_real.pk }}"
-						value="{{ item_real.get_amount }}">+</button>
+					<button 
+						class="factor-btn" 
+						data-factor="1" 
+						data-id="{{ item_real.pk }}"
+						value="{{ item_real.get_amount }}">
+						+
+					</button>
 				</div>
 				<div class="d-inline-block">
 					<p>
-						<span id="total-amount-{{ item_real.pk }}" value="{{ item_real.get_amount }}">
+						<span id="total-amount-{{ item_real.pk }}" 
+							value="{{ item_real.get_amount }}">
 							{{ item_real.get_amount|intcomma }}
 						</span>
 						<span>원</span>
 					</p>
 				</div>
-				<div class="d-inline-block">
-					<button class="item-real-delete-btn" value="{{ item_real.pk }}">X</button>
-				</div>
+				{% if not item.is_one_item_real %}
+					<div class="d-inline-block">
+						<button class="item-real-delete-btn" value="{{ item_real.pk }}">X</button>
+					</div>
+				{% endif %}
 			</div>
 		{% endfor %}
 	</div>
@@ -86,17 +102,17 @@
 	<br>
 
 	<div value="{{ itme.id }}">
-		<p>총 결제금액</p>
-		<!-- <p>
-			<span id="total-amount" value="{{ item.total_amount }}">
-				{% if item.sale_amount %}
-					{{ item.sale_amount|intcomma }}
-				{% else %}
-					{{ item.amount|intcomma }}
-				{% endif %}
-			</span>
-			<span >원</span>
-		</p> -->
+		<span>총 금액: </span>
+			{% if item.is_one_item_real %}
+				<span id="total-amount" 
+					value="{{ item.itemreal_item.first.get_amount }}">
+					{{ item.itemreal_item.first.get_amount|intcomma }}
+				</span>	
+			{% else %}
+				<span id="total-amount" value="0">0</span>
+			{% endif %}
+		
+		<span>원</span>
 	</div>
 
 	<button id="add-cart" data-item-id="{{ item.id }}">add to cart</button>
@@ -120,6 +136,8 @@
 	<script src="//unpkg.com/axios/dist/axios.min.js"></script>
 	<script src="{% static 'shop/js/review.js' %}" id="review-js" review-url="{{ review_url }}"></script>
 	<script src="{% static 'order/js/comma_mixin.js' %}"></script>
+	<script src="{% static 'shop/js/item_real_mixin.js' %}"></script>
+	<script src="{% static 'shop/js/total_amount_mixin.js' %}"></script>
 	<script src="{% static 'cart/js/cart.js' %}" id="cart-js" 
 		add-cart-url="{% url 'cart:add_cart' %}" cart-list-url="{% url 'cart:cart_list' %}"></script>
 	<script src="{% static 'order/js/quantity_select.js' %}"></script>
@@ -127,10 +145,10 @@
 	<script>
 		const quantitySelecter = new QuantitySelecter(document.querySelectorAll('.factor-btn'));
 		const cart = new Cart();
+
 		quantitySelecter.quantity_select();
 		document.getElementById('add-cart').addEventListener('click', e => cart.add_cart(
-			e.currentTarget.getAttribute('data-item-id'),
-			document.querySelector('.quantity').innerText
+			document.querySelectorAll('#item-list .d-block')
 		));
 	</script>
 {% endblock %}
