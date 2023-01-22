@@ -47,15 +47,24 @@ class Cart {
 		}
     }
 
-    add_cart(item_id, quantity) {
-        this.data.append('item_id', item_id);
-        this.data.append('quantity', quantity);
+    add_cart(ele) {
+        const items = this.create_item_real_objects(ele);
+
+        if (Object.keys(items).length <= 0) {
+            alert('상품 옵션을 선택해주세요.');
+            return false;
+        }
+                
+        this.data.append('item_reals', JSON.stringify(items));
         this.axios_api('create');
     }
 
-    update_quantity(item_id, quantity) {
-        this.data.append('item_id', item_id);
-        this.data.append('quantity', quantity);
+    update_quantity(ele, quantity) {
+        const id = ele.target.getAttribute('data-cart-id');
+        const itemEle = document.querySelectorAll(`#cart-${id}`);
+        const item = this.create_item_real_objects(itemEle, quantity);
+
+        this.data.append('item_reals', JSON.stringify(item));
         this.axios_api('update');
     }
 
@@ -65,4 +74,4 @@ class Cart {
     }
 }
 
-Object.assign(Cart.prototype, commaMixin);
+Object.assign(Cart.prototype, commaMixin, ItemRealMixin);
