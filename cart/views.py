@@ -1,12 +1,14 @@
+import json
+
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 
 from rest_framework import status
 
 from cart.models import Cart
 from cart.services import CookieCart, cart_update_or_create
 
-from shop.models import Item
+from shop.models import ItemReal
 
 
 # Create your views here.
@@ -15,7 +17,7 @@ def cart_list(request: HttpRequest) -> HttpResponse:
 
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).select_related('user')
-        get_item_total = sum(item.quantity * item.item.amount for item in cart)
+        get_item_total = sum(item.quantity * item.item.get_amount() for item in cart)
     else:
         cart = CookieCart(request)
         get_item_total = cart.get_item_total()
@@ -28,30 +30,38 @@ def cart_list(request: HttpRequest) -> HttpResponse:
 def add_cart(request: HttpRequest) -> JsonResponse:
     ''' 장바구니 저장 '''
 
-    pk = request.POST.get('item_id')
-    quantity = request.POST.get('quantity')
-    item = get_object_or_404(Item, pk=pk)
-
+    item_real_dict = request.POST.get('item_reals')
     response = JsonResponse(data={'message': 'success'}, status=status.HTTP_200_OK)
 
     if request.user.is_authenticated:
-        cart_qs = Cart.objects.filter(user=request.user, item=item)
-        cart_update_or_create(request, item, cart_qs, quantity)
+        cart_update_or_create(request, json.loads(item_real_dict))
     else:
         cookie_cart = CookieCart(request)
-        cookie_cart.add(response, pk, quantity)
+        cookie_cart.add(response, json.loads(item_real_dict))
 
     return response
 
 def delete_cart(request: HttpRequest, item_pk: str) -> JsonResponse:
     ''' 장바구니 삭제 '''
 
-    item = get_object_or_404(Item, id=item_pk)
-    response = JsonResponse(data={'message': '삭제했습니다.'}, status=status.HTTP_200_OK)
+    item = ItemReal.objects.get_or_none(id=item_pk)
+    data = {'message': '삭제했습니다.'}
+    status_code = status.HTTP_200_OK
+    response = JsonResponse(data=data, status=status_code)
+    
+    if item is None:
+        data = {'error': '404 (Not Found)'}
+        status_code = status.HTTP_404_NOT_FOUND
+        return JsonResponse(data, status_code)
 
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user, item=item)
-        cart.delete()
+        if cart:
+            cart.delete()
+        else:
+            data = {'error': '404 (Not Found)'}
+            status_code = status.HTTP_404_NOT_FOUND
+            return JsonResponse(data=data, status=status_code)
     else:
         cart = CookieCart(request)
         cart.delete(response, str(item_pk))
