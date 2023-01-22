@@ -36,7 +36,4 @@ class Cart(HistoryModel):
         return self.user.username
 
     def total_amount(self):
-        if self.item.sale_amount:
-            return self.quantity * self.item.sale_amount
-        else:
-            return self.quantity * self.item.amount
+        return self.quantity * self.item.get_amount()
