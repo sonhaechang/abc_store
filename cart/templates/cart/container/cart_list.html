@@ -11,7 +11,8 @@
                 <tbody>
                     {% for cart in cart_list %}
                         <tr id="cart-{{ cart.pk }}" 
-                            data-cart-id="{{ cart.pk }}"
+                            data-id="{{ cart.pk }}"
+                            data-item-id="{{ cart.item.pk }}"
                             class="cart">
                             <td>
                                 <label for="{{ cart.pk }}" 
@@ -31,24 +32,30 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <p>{{ cart.item.name }}</p>
+                                <p class="m-0">{{ cart.item.get_item_name }}</p>
+                                <small>
+                                    {{ cart.item.name }} 
+                                    (+{{ cart.item.extra_amount|intcomma }} 원)
+                                </small>
                             </td>
-                            {% if cart.item.is_public == True %}
+                            {% if cart.item.is_public %}
                                 <td>
-                                    {{ cart.item.amount|intcomma }} 원
+                                    {{ cart.item.get_amount|intcomma }} 원
                                 </td>
                                 <td>
                                     <button class="factor-btn" 
                                         data-factor="-1" 
                                         data-id="{{ cart.item.pk }}"
-                                        value="{{ cart.item.amount }}">
+                                        data-cart-id="{{ cart.pk }}"
+                                        value="{{ cart.item.get_amount }}">
                                         -
                                     </button>
                                         <span class="quantity">{{ cart.quantity }}</span>
                                     <button class="factor-btn" 
                                         data-factor="1" 
                                         data-id="{{ cart.item.pk }}"
-                                        value="{{ cart.item.amount }}">
+                                        data-cart-id="{{ cart.pk }}"
+                                        value="{{ cart.item.get_amount }}">
                                         +
                                     </button>
                                 </td>
@@ -64,7 +71,7 @@
                                 <td colspan="3">SOLD OUT</td>
                             {% endif %}
                             <td>
-                                <a href="{% url 'cart:delete_cart' cart.pk %}" 
+                                <a href="{% url 'cart:delete_cart' cart.item.pk %}" 
                                     class="delete-cart"
                                     data-id="{{ cart.pk }}">
                                     삭제
@@ -94,6 +101,8 @@
 {% block script %}
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.10.2/underscore-min.js"></script>
     <script src="//unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="{% static 'shop/js/item_real_mixin.js' %}"></script>
+    <script src="{% static 'shop/js/total_amount_mixin.js' %}"></script>
     <script src="{% static 'order/js/comma_mixin.js' %}"></script>
     <script src="{% static 'order/js/order_new.js' %}"></script>
     <script src="{% static 'cart/js/cart.js' %}" id="cart-js" 
