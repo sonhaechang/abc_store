@@ -15,10 +15,10 @@ class OrderItem(HistoryModel):
 	)
 
 	item = models.ForeignKey(
-		to='shop.Item', 
+		to='shop.ItemReal', 
 		on_delete=models.CASCADE, 
 		related_name='%(class)s_item',
-		verbose_name=_('상품명')
+		verbose_name=_('상품실물')
 	)
 
 	quantity = models.PositiveIntegerField(
@@ -50,7 +50,4 @@ class OrderItem(HistoryModel):
 
 	@property
 	def amount(self):
-		if self.item.sale_amount:
-			return self.quantity * self.item.sale_amount
-		else:
-			return self.quantity * self.item.amount
+		return self.quantity * self.item.get_amount()
