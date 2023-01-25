@@ -51,3 +51,7 @@ class OrderItem(HistoryModel):
 	@property
 	def amount(self):
 		return self.quantity * self.item.get_amount()
+
+	@property
+	def get_item_name(self):
+		return self.item.item.name

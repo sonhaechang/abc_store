@@ -79,13 +79,22 @@
                                 <div class="bg-dark" style="width: 50px; height: 50px;"></div>
                             {% endif %}
                         </td>
-                        <td class="item-name">{{ item.item.name }}</td>
-                        <td class="item-quantity">{{ item.quantity }}</td>
-                        {% if item.item.sale_amount %}
+                        
+                        <td class="item-name">
+                            <!-- {{ item.item.name }} -->
+                            <p class="m-0">{{ item.get_item_name }}</p>
+                            <small>
+                                {{ item.item.name }} 
+                                (+{{ item.item.extra_amount|intcomma }} 원)
+                            </small>
+                        </td>
+                        <td class="item-quantity">{{ item.quantity }} 개</td>
+                        <td class="item-amount">{{ item.item.get_amount }} 원</td>
+                        <!-- {% if item.item.sale_amount %}
                             <td class="item-amount">{{ item.item.sale_amount|intcomma }} 원</td>
                         {% else %}
                             <td class="item-amount">{{ item.item.amount|intcomma }} 원</td>
-                        {% endif %}
+                        {% endif %} -->
                     </tr>
                 {% endfor %}
             </tbody>
