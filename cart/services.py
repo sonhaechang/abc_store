@@ -128,11 +128,7 @@ def anonymous_user_cart_to_db_cart(request: HttpRequest, cart_list: dict[Any]) -
     ''' 세션 기반 장바구니의 내역을 장바구니 db에 저장'''
     
     if cart_list:
-        for item in Item.objects.filter(id__in=cart_list.keys()):
-            cart_qs = Cart.objects.filter(user=request.user, item=item)
-            quantity = int(cart_list[str(item.pk)])
-
-            cart_update_or_create(request, item, cart_qs, quantity)
+        cart_update_or_create(request, cart_list)
 
 
 # class SessionCart(object):
