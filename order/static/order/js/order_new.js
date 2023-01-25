@@ -16,7 +16,7 @@ class Order {
 		checkboxs.forEach(ele => {
             ele.addEventListener('change', e => {
 				const cart = e.target.parentNode.parentNode.parentNode;
-				const cart_id = cart.getAttribute('data-cart-id');
+				const cart_id = cart.getAttribute('data-id');
 				const amount = parseInt(document.getElementById(
 					`total-amount-${e.target.getAttribute('data-id')}`).getAttribute('value'));
 
