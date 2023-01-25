@@ -59,6 +59,7 @@ PROJECT_APPS = [
     'accounts.apps.AccountsConfig',
     'cart.apps.CartConfig',
     'core.apps.CoreConfig',
+    'events.apps.EventsConfig',
     'order.apps.OrderConfig',
     'shop.apps.ShopConfig',
 ]
