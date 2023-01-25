@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from order.models import Order, OrderItem
 
-from shop.models import Item
+from shop.models import ItemReal
 
 
 class OrderInfo:
@@ -22,7 +22,8 @@ class OrderInfo:
 	def get_instance(self) -> Model:
 		''' create order instance '''
 
-		item_qs = Item.objects.filter(id__in=self.request.session['order_items'].keys())
+		# item_qs = Item.objects.filter(id__in=self.request.session['order_items'].keys())
+		item_qs = ItemReal.objects.filter(id__in=self.request.session['order_items'].keys())
 		quantity_dict = { int(k): int(v) for k, v in self.request.session['order_items'].items() }
 
 		order_items = list()
@@ -33,8 +34,10 @@ class OrderInfo:
 
 		user = self.request.user
 		item = order_items[0]
-		name = f'{item.item.name} 외 {len(order_items) - 1}건' \
-			if len(order_items) > 1 else item.item.name
+		# name = f'{item.item.name} 외 {len(order_items) - 1}건' \
+		# 	if len(order_items) > 1 else item.item.name
+		name = f'{item.get_item_name} 외 {len(order_items) - 1}건' \
+			if len(order_items) > 1 else item.get_item_name
 
 		instance = Order(
 			name=name, 
@@ -84,9 +87,11 @@ class OrderItemHandler:
 		if self.order.status == 'paid':
 			for order_item in self.order_items:
 				item = order_item.item
-				item.stock = int(item.stock) - int(order_item.quantity)
+				item.quantity = int(item.quantity) - int(order_item.quantity)
+				# item.stock = int(item.stock) - int(order_item.quantity)
 
-				if item.stock == 0:
+				# if item.stock == 0:
+				if item.quantity == 0:
 					item.is_public = False
 				item.save()
 
@@ -95,11 +100,14 @@ class OrderItemHandler:
 
 		for order_item in self.order_items:
 			item = order_item.item
-			item.stock = int(item.stock) + int(order_item.quantity)
+			item.quantity = int(item.quantity) + int(order_item.quantity)
+			# item.stock = int(item.stock) + int(order_item.quantity)
 
-			if item.stock > 0:
+			# if item.stock > 0:
+			if item.quantity == 0:
 				item.is_public = True
 			item.save()
+
 
 def export_excel(queryset: QuerySet) -> HttpResponse:
 	''' 주문정보 엑셀로 다운로드 '''
